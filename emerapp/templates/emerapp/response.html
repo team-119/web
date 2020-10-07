@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+<meta charset=”UTF-8”>
+	<title> EMERGENCY SERVICE </title>
+	<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+	<style>
+	body {background-color: #EAFAEA; font-family: 'Nanum Gothic', sans-serif;} <!--배경-->
+	h1 {font-weight: bold; text-indent: 25px;}
+	span {color: #665C00}
+	</style>
+	<script type="text/javascript">
+		function printTime() {
+			var clock = document.getElementById("clock");
+			<!--id값인 <span>태그를 변수clock에 저장-->
+			var now = new Date(); 
+			<!--객체 생성-->
+
+			clock.innerHTML = 
+				<!--태그 내부에 태그 설정-->
+			now.getFullYear() + "년 " + 
+			(now.getMonth() + 1) + "월 " +
+			now.getDate() + "일 " + 
+			now.getHours() + "시 " + 
+			now.getMinutes() + "분 " + 
+			now.getSeconds() + "초";
+			setTimeout("printTime()", 1000); 
+			<!--1초마다 printTime()함수 호출-->
+		}
+		window.onload = function() { <!--html 로딩시 콜백함수 호출-->
+            printTime();
+		}
+	</script>
+ </head>
+
+ <body>
+ <div>
+      <span id="clock"></span>
+      <h1>실시간 환자-응급실 매칭 시스템</h1>
+      <h3>Address: 주소 | Emergency: 응급도 | Oper: 필요한 수술 | Room: 병실 </h3>
+      <p>긴급: 1 / 응급: 2 / 비응급: 3</p>
+      <p>사지접합의 수술: 1 / 산부인과 응급: 2 / 복부응급수술: 3 / 심근경색 수술: 4</p>
+      <p>외상중환자실: 1 / 심장내과중환자실: 2 / 일반중환자실: 3</p>
+        <form method="PATIENT">
+            {% csrf_token %}
+            {{ form.as_p }}
+        <!--button type="submit">저장</button-->
+        <input type="button" value="저장" onclick="location.href='results'"
+ </form>
+ <br>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d50487.18173960257!2d127.02779477708398!3d37.73261267712708!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357cc70e2e6f8c4d%3A0xe147f896f2f59cac!2z6rK96riw64-EIOydmOygleu2gOyLnA!5e0!3m2!1sko!2skr!4v1576480768007!5m2!1sko!2skr" width="600" height="450" frameborder="0" style="border:0;" allowfullscreen=""></iframe>
+
+   </div>
+ </body>
+</html>
+
+
