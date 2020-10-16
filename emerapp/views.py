@@ -12,7 +12,7 @@ def response(request):
         if form.is_valid():
             haha = form.save()
             print(haha)
-            return redirect('results.html')
+            return redirect('/results')
     else:
         form = PatientForm()
     return render(request, 'emerapp/response.html', {'form': form})

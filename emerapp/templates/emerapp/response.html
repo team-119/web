@@ -4,11 +4,6 @@
 <meta charset=”UTF-8”>
 	<title> EMERGENCY SERVICE </title>
 	<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
-	<style>
-	body {background-color: #EAFAEA; font-family: 'Nanum Gothic', sans-serif;} <!--배경-->
-	h1 {font-weight: bold; text-indent: 25px;}
-	span {color: #665C00}
-	</style>
 	<script type="text/javascript">
 		function printTime() {
 			var clock = document.getElementById("clock");
@@ -43,9 +38,9 @@
     <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-        <input type="submit" value="저장" onclick="location.href='results'"
+        <input type="submit" value="저장">
     </form>
- </ p>
+ </p>
  <br>
     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d50487.18173960257!2d127.02779477708398!3d37.73261267712708!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357cc70e2e6f8c4d%3A0xe147f896f2f59cac!2z6rK96riw64-EIOydmOygleu2gOyLnA!5e0!3m2!1sko!2skr!4v1576480768007!5m2!1sko!2skr" width="600" height="450" frameborder="0" style="border:0;" allowfullscreen=""></iframe>
 
