@@ -1,16 +1,14 @@
 from django.db import models
-#from geoposition.fields import GeopositionField
 
 class Patient(models.Model):
-    address = models.CharField(max_length=100, default='')
-    emergency = models.IntegerField(default=3)
-    oper = models.IntegerField(default=1)
-    room = models.IntegerField(default=1)
-    #gps = GeopositionField(null=True)
-    #t0 = models.IntegerField(default=0)
-    #wait_time
-    #i
-    #tm_1o
+    emer = models.IntegerField(default=1) #1:비응, 3:응
+    oper = models.IntegerField(default=0) #0이면 수술 노필요
     
     def __str__(self):
-        return self.address
+        return str(self.emer) #id를 기준으로 리턴
+    
+class bed(models.Model):
+    sm = models.TextField(blank=True)
+    choo = models.TextField(blank=True)
+    back = models.TextField(blank=True)
+    nmc = models.TextField(blank=True)

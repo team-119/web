@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>들어온 환자들</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <td><B>번호</B></td>
+            <td><B>응급도</B></td>
+            <td><B>수술</B></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for patient in patients %}
+        <tr>
+            <td>{{patient.id}}번</td>
+            <td>{{patient.emer}}</td>
+            <td>{{patient.oper}}</td>
+        </tr>
+        {% endfor %}
+        <tbody>
+    </table>
+</body>

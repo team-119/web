@@ -37,16 +37,15 @@
  <div>
       <span id="clock"></span>
       <h1>실시간 환자-응급실 매칭 시스템</h1>
-      <h3>Address: 주소 | Emergency: 응급도 | Oper: 필요한 수술 | Room: 병실 </h3>
-      <p>긴급: 1 / 응급: 2 / 비응급: 3</p>
-      <p>사지접합의 수술: 1 / 산부인과 응급: 2 / 복부응급수술: 3 / 심근경색 수술: 4</p>
-      <p>외상중환자실: 1 / 심장내과중환자실: 2 / 일반중환자실: 3</p>
-        <form method="PATIENT">
+      <h3>emer: 응급도 | oper: 필요한 수술 </h3>
+      <p>비응급: 1 / 응급: 2 / 긴급: 3</p>
+      <p>수술이 필요하지 않을 경우 0을 입력해주십시오.</p>
+    <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
-        <!--button type="submit">저장</button-->
-        <input type="button" value="저장" onclick="location.href='results'"
- </form>
+        <input type="submit" value="저장" onclick="location.href='results'"
+    </form>
+ </ p>
  <br>
     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d50487.18173960257!2d127.02779477708398!3d37.73261267712708!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357cc70e2e6f8c4d%3A0xe147f896f2f59cac!2z6rK96riw64-EIOydmOygleu2gOyLnA!5e0!3m2!1sko!2skr!4v1576480768007!5m2!1sko!2skr" width="600" height="450" frameborder="0" style="border:0;" allowfullscreen=""></iframe>
 

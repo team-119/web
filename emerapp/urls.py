@@ -5,4 +5,5 @@ app_name = 'emerapp'
 urlpatterns = [
         path('', views.response, name='response'),
         path('results/', views.results, name='results'),
+        path('mc/', views.mc, name='mc'),
 ]

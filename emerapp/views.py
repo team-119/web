@@ -1,24 +1,26 @@
 from emerapp.models import Patient
 from django.shortcuts import render, redirect
 from emerapp.forms import PatientForm
-#from geoposition.fields import GeopositionField
 
 import random
 from datetime import datetime
 from datetime import timedelta
 
-
 def response(request):
-    form = PatientForm(request.POST)
-    if request.method == "POST":
+    if request.method == 'POST':
+        form = PatientForm(request.POST)
         if form.is_valid():
-            patient = form.save(commit=False)
-            patient.save()
-        return redirect('results.html')
+            haha = form.save()
+            print(haha)
+            return redirect('results.html')
     else:
         form = PatientForm()
     return render(request, 'emerapp/response.html', {'form': form})
 
+def mc(request): #고민채한테 db 환자값 보여줄
+    patients = Patient.objects.all()
+    context = {'patients': patients} #context에 모든 환자 정보를 저장
+    return render(request, 'emerapp/mc.html', context)
 
 def results(request):
     h1 = None

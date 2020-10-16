@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'emerapp.apps.EmerappConfig',
-    'geoposition',
 ]
 
 MIDDLEWARE = [
@@ -108,5 +107,3 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-GEOPOSITION_GOOGLE_MAPS_API_KEY = 'AIzaSyCoRourwTXUb9PkP0bB0nALeuPUTgNNCyo'
