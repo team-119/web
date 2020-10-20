@@ -3,12 +3,17 @@ from django.db import models
 class Patient(models.Model):
     emer = models.IntegerField(default=1) #1:비응, 3:응
     oper = models.IntegerField(default=0) #0이면 수술 노필요
+    hos = models.CharField(max_length=1, null=True)
+    
+    ETE_S = models.IntegerField(default=0)
+    ETE_C = models.IntegerField(default=0)
+    ETE_B = models.IntegerField(default=0)
+    ETE_U = models.IntegerField(default=0)
+    
+    ETA_S = models.IntegerField(default=0)
+    ETA_C = models.IntegerField(default=0)
+    ETA_B = models.IntegerField(default=0)
+    ETA_U = models.IntegerField(default=0)
     
     def __str__(self):
-        return str(self.emer) #id를 기준으로 리턴
-    
-class bed(models.Model):
-    sm = models.TextField(blank=True)
-    choo = models.TextField(blank=True)
-    back = models.TextField(blank=True)
-    nmc = models.TextField(blank=True)
+        return str(self.id)

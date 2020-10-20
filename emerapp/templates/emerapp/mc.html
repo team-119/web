@@ -16,14 +16,32 @@
             <td><B>번호</B></td>
             <td><B>응급도</B></td>
             <td><B>수술</B></td>
+            <td><B>확정 응급실</B></td>
+            <td><B>소요_성모</B></td>
+            <td><B>소요_추</B></td>
+            <td><B>소요_백</B></td>
+            <td><B>소요_의료원</B></td>
+            <td><B>도착_성모</B></td>
+            <td><B>도착_추</B></td>
+            <td><B>도착_백</B></td>
+            <td><B>도착_의료원</B></td>
         </tr>
         </thead>
         <tbody>
         {% for patient in patients %}
         <tr>
-            <td>{{patient.id}}번</td>
+            <td>{{patient.id}}</td>
             <td>{{patient.emer}}</td>
             <td>{{patient.oper}}</td>
+            <td>{{patient.hos}}</td>
+            <td>{{patient.ETE_S}}</td>
+            <td>{{patient.ETE_C}}</td>
+            <td>{{patient.ETE_B}}</td>
+            <td>{{patient.ETE_U}}</td>
+            <td>{{patient.ETA_S}}</td>
+            <td>{{patient.ETA_C}}</td>
+            <td>{{patient.ETA_B}}</td>
+            <td>{{patient.ETA_U}}</td>
         </tr>
         {% endfor %}
         <tbody>
