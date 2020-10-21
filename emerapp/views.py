@@ -13,16 +13,16 @@ def user_input(request):
         form = PatientForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('user_input/')
+            return redirect('user_output', pk=Patient.id)
     else:
         form = PatientForm() 
     return render(request, 'emerapp/user_input.html', {'form': form})
 
-def mc(request): #고민채한테 db 환자값 보여줄
-    patients = Patient.objects.all()
-    return render(request, 'emerapp/mc.html', {'patients': patients})
+#def mc(request): #고민채한테 db 환자값 보여줄
+    #patients = Patient.objects.all()
+    #return render(request, 'emerapp/mc.html', {'patients': patients})
 
-def user_ouput(request, patient_id):
+def user_output(request, pk):
     url = "http://portal.nemc.or.kr/medi_info/dashboards/dash_total_emer_org_popup_for_egen.do?&juso=&lon=&lat=&con=on&emogloca=21&emogdstr=2138&asort=A&asort=C&asort=D&rltmCd=O001&rltmCd=O002&rltmCd=O003&rltmCd=O004&rltmCd=O048&rltmCd=O049&rltmCd=O046&rltmCd=O047&rltmCd=O005&rltmCd=O019&rltmCd=O010&rltmCd=O020&rltmCd=O017&rltmCd=O006&rltmCd=O007&rltmCd=O009&rltmCd=O015&rltmCd=O011&rltmCd=O012&rltmCd=O016&rltmCd=O008&rltmCd=O014&rltmCd=O013&rltmCd=O018&rltmCd=O038&rltmCd=O025&rltmCd=O021&rltmCd=O024&rltmCd=O022&rltmCd=O023&rltmCd=O026&rltmCd=O036&rltmCd=O030&rltmCd=O031&rltmCd=O032&rltmCd=O033&rltmCd=O034&rltmCd=O035&rltmCd=O037&rltmCd=O027&rltmCd=O028&rltmCd=O029&svdssCd=Y0010&svdssCd=Y0020&svdssCd=Y0031&svdssCd=Y0032&svdssCd=Y0041&svdssCd=Y0042&svdssCd=Y0051&svdssCd=Y0052&svdssCd=Y0060&svdssCd=Y0070&svdssCd=Y0131&svdssCd=Y0132&svdssCd=Y0081&svdssCd=Y0082&svdssCd=Y0091&svdssCd=Y0092&svdssCd=Y0111&svdssCd=Y0112&svdssCd=Y0113&svdssCd=Y0160&svdssCd=Y0141&svdssCd=Y0142&svdssCd=Y0171&svdssCd=Y0172&svdssCd=Y0150&svdssCd=Y0120&svdssCd=Y0100&afterSearch=map&theme=BLACK&refreshTime=60&spreadAllMsg=allClose"
     response = requests.get(url)
     html = response.text
@@ -257,9 +257,8 @@ def user_ouput(request, patient_id):
     def fromdb():
         #수술실 타임라인 가져오기
         #지금 있는 거보다 더 많으면 가져오기
+        user = Patient.object.get() #민채
         threading.Timer(60,fromdb).start()
-    
-    fromdb()
     
     
     #병상 정보 크롤링 [사용된 병상, 전체 병상 수]
@@ -397,4 +396,4 @@ def user_ouput(request, patient_id):
         for i in tfinal:
             print(name_hos[i[1]],t0[i[1]],i[0])
             
-    return render(request, 'emerapp/user_ouput.html', {'result': result})
+    return render(request, 'emerapp/user_output.html', {'result': result})

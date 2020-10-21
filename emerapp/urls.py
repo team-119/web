@@ -4,7 +4,6 @@ from emerapp import views
 app_name = 'emerapp'
 urlpatterns = [
         path('', views.user_input, name='user_input'),
-        path('user_ouput/<int:patient_id>/', views.user_ouput, name='user_ouput'),
-        #path('user_ouput', views.user_ouput, name='user_ouput'),
-        path('mc/', views.mc, name='mc'),
+        path('user_output/<int:Patient_id>/', views.user_output, name='user_output'),
+        #path('mc/', views.mc, name='mc'),
 ]
