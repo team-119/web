@@ -1,47 +1,70 @@
 from emerapp.models import Patient
-from django.shortcuts import render, redirect
 from emerapp.forms import PatientForm
+from django.shortcuts import render, redirect
+from django.Http import HttpResponse
 
+import json
 import requests
 import re
 from bs4 import BeautifulSoup as bs
 import time
 import threading
+from datetime import datetime
 
 def user_input(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('user_output', pk=Patient.id)
+        return redirect('/api')
     else:
-        form = PatientForm() 
+        form = PatientForm()
     return render(request, 'emerapp/user_input.html', {'form': form})
 
-#def mc(request): #고민채한테 db 환자값 보여줄
-    #patients = Patient.objects.all()
-    #return render(request, 'emerapp/mc.html', {'patients': patients})
+def api(request):
+    if 'hospital' in request.POST:
+        hospital = request.POST.getlist('hospital[]')
+        Patient.ETA_S = hospital[0]
+        Patient.ETA_C = hospital[1]
+        Patient.ETA_B = hospital[2]
+        Patient.ETA_U = hospital[3]
+        Patient.ETE_S = hospital[4]
+        Patient.ETE_C = hospital[5]
+        Patient.ETE_B = hospital[6]
+        Patient.ETE_U = hospital[7]
+    return redirect('/user_output/{}'.format(patient_id))
 
-def user_output(request, pk):
+def hos_input(request):
+    if request.method == 'POST':
+        form = PatientForm(request.POST)
+        if form.is_valid():
+            patient_id = form.save()
+            return HttpResponse("successfully saved")
+    else:
+        form = PatientForm()
+    return render(request, 'emerapp/hos_input.html', {'form': form})
+
+def user_output(request, patient_id):
     url = "http://portal.nemc.or.kr/medi_info/dashboards/dash_total_emer_org_popup_for_egen.do?&juso=&lon=&lat=&con=on&emogloca=21&emogdstr=2138&asort=A&asort=C&asort=D&rltmCd=O001&rltmCd=O002&rltmCd=O003&rltmCd=O004&rltmCd=O048&rltmCd=O049&rltmCd=O046&rltmCd=O047&rltmCd=O005&rltmCd=O019&rltmCd=O010&rltmCd=O020&rltmCd=O017&rltmCd=O006&rltmCd=O007&rltmCd=O009&rltmCd=O015&rltmCd=O011&rltmCd=O012&rltmCd=O016&rltmCd=O008&rltmCd=O014&rltmCd=O013&rltmCd=O018&rltmCd=O038&rltmCd=O025&rltmCd=O021&rltmCd=O024&rltmCd=O022&rltmCd=O023&rltmCd=O026&rltmCd=O036&rltmCd=O030&rltmCd=O031&rltmCd=O032&rltmCd=O033&rltmCd=O034&rltmCd=O035&rltmCd=O037&rltmCd=O027&rltmCd=O028&rltmCd=O029&svdssCd=Y0010&svdssCd=Y0020&svdssCd=Y0031&svdssCd=Y0032&svdssCd=Y0041&svdssCd=Y0042&svdssCd=Y0051&svdssCd=Y0052&svdssCd=Y0060&svdssCd=Y0070&svdssCd=Y0131&svdssCd=Y0132&svdssCd=Y0081&svdssCd=Y0082&svdssCd=Y0091&svdssCd=Y0092&svdssCd=Y0111&svdssCd=Y0112&svdssCd=Y0113&svdssCd=Y0160&svdssCd=Y0141&svdssCd=Y0142&svdssCd=Y0171&svdssCd=Y0172&svdssCd=Y0150&svdssCd=Y0120&svdssCd=Y0100&afterSearch=map&theme=BLACK&refreshTime=60&spreadAllMsg=allClose"
     response = requests.get(url)
     html = response.text
     soup = bs(html,"html.parser")
-
-    number = soup.find_all('div',class_="data_data data_td_O038") # 일반 병상 
-
-    n = 0   
+    
+    number = soup.find_all('div', class_="data_data data_td_O038") # 일반 병상 
+    
+    n = 0
     for i in number:
-        number[n] = re.compile('\w+').findall(i.get_text())     
+        number[n] = re.compile('\w+').findall(i.get_text()) 
         print(re.compile('\w+').findall(i.get_text()))
         n+=1
-        #number 안에 병원별로 [사용된 병상, 전체 병상 수] 들어가있다 
-
+    #number 안에 병원별로 [사용된 병상, 전체 병상 수] 들어가있다 
+    
     name_hos = [] #병원 이름
     name_sur = [] #수술 이름
     sungmo_sur = [-1] #병원별 수술 가능여부(1번째 칸부터 수술1)
     chu_sur = [-1]
     t0 = [] #도착 시간 리스트
+    tbed_sung =[]
     
     #정렬 함수 정의
     def qsort(a):
@@ -61,16 +84,15 @@ def user_output(request, pk):
         return qsort(al) + ae + qsort(ar)
     
     # 병원 이름     
-    name_hos = soup.find_all('div', class_ = "dash_box")
+    name_hos = soup.find_all('div',class_ = "dash_box")
     n = 0
     for i in name_hos:
         name_hos[n] = i['data-emogdesc']
         n+=1
     print(name_hos)
     
-    
     # 수술종류 이름 
-    sur1 = soup.find_all('div', class_ = 'data_header')
+    sur1 = soup.find_all('div',class_ = 'data_header')
     sur2 = soup.find_all('td')
     n = 0
     for i in sur1[42:69]:
@@ -78,7 +100,7 @@ def user_output(request, pk):
         name_sur.append(i.get_text())
         n+=1
     #성모 : [130:156] / 추병원 : [284:310]
-    
+
     # sur_hos는 수술실리스트 집합
     s1_1 = [] # 성모,수술종류_응급도
     s1_2 = [[0,0,0]]
@@ -249,16 +271,54 @@ def user_output(request, pk):
     # 여기서부터 반복
     # 1. DB는 1분마다 반복
     # 2. 본체는 정보 들어올때마다
-    #     1) 병상 정보 크롤링
-    #     2) 수술실 가능도 크롤링 
-    #     3) 본체 코드
 
     #DB 연동 코드
+    #직접 온 사람 정보 
+    
     def fromdb():
         #수술실 타임라인 가져오기
-        #지금 있는 거보다 더 많으면 가져오기
-        user = Patient.object.get() #민채
+        #지금 있는거보다 더 많으면 가져오기
+        #아니면 직접 온 사람일때 가져오기 (by = 1)
+        p = Patient.objects
+        n = Patient.objects.count()
+        t0 = datetime.today() 
+        tfinal = 0 
+        sur = p.oper
+        emer = p.emer
+        
+        for i in range(n,0,-1): #뒤에서 몇번째
+            if sur[i] !=0: #수술 필요시
+                if sur_hos[sur-1][emer-1][-1][0] < p.id[i] #환자코드가 더 크면    
+                    if p[i].by == 1: #병원에서 온 사람 
+                        if p[i].hos == 'S': #성모 병원 간 사람 
+                            if sur_hos[sur-1][emer-1][-1][2] <= t0: #도착하자마자 가능 
+                                    tfinal = t0
+                            else: #기다려야됨
+                                tfinal = sur_hos[sur-1][emer-1][-1][2]
+                            sur_hos[sur-1][emer-1].append([p[i].id,tfinal,tfinal + stay[sur[i]]]) #p.oper[i]
+    
+                        elif p[i].hos == 'C': #추병원 간 사람 
+                            if chu_hos[sur-1][emer+2][-1][2] <= t0: #도착하자마자 가능 
+                                tfinal = t0
+                            else: #기다려야됨
+                                tfinal = chu_hos[sur-1][emer+2][-1][2]
+                            chu_hos[sur-1][emer+2].append([p[i].id,tfinal,tfinal + stay[sur[i]]])
+    
+                        else :
+                            continue 
+                            
+                else:
+                    break
         threading.Timer(60,fromdb).start()
+    
+    fromdb()
+    
+
+    p = Patient.objects
+    pn = p.filter(by = 0).order_by('id').last() # 환자 코드 
+    t0 = [p[pn].ETA_S, p[pn].ETA_U, p[pn].ETA_B, p[pn].ETA_C] # 병원별 도착 시간
+    emer = p.emer[pn]
+    sur = p.oper[pn]
     
     
     #병상 정보 크롤링 [사용된 병상, 전체 병상 수]
@@ -293,8 +353,8 @@ def user_output(request, pk):
             chu_sur.append(0)
         else:
             chu_sur.append(2)
-    
 
+    
     # 체크리스트에서 sur 받아오기 
     # t0 받아오는 코드 
     # 가능한 병원 찾기
@@ -302,13 +362,12 @@ def user_output(request, pk):
     sur = 7 # 치료종류
     poss_hos = [0,0,0,0] # 가능한 병원(병원순서대로 칸 번호)
     tfinal = [] # 최종 치료 가능 시작 시간 
-    t0 = [4,3,2,1]
     emer = 2 #응급도 점점 응급
-    pn = 111701 # 환자코드 
-    tf = 111806 # 도착예정시각
     poss_hos = [-1,-1,-1,-1]
     emer = 2
-    patient = []
+    patient = [pn]
+    t0 = [4,3,2,1]
+    pn = 102111
     
     if sur == 0: #중증X -> 응급실 유무만
         n = 0
@@ -392,8 +451,21 @@ def user_output(request, pk):
                     i[1] += gaptime
                     i[2] += gaptime
     
+        result = [] #출력할 결과물
         #출력
         for i in tfinal:
-            print(name_hos[i[1]],t0[i[1]],i[0])
-            
+            result.append([name_hos[i[1]],t0[i[1]],i[0]])
+        print(result)
+        print(tfinal)
+
+    
+    #db 업데이트 코드 
+    #선정병원, 예상시작시간, 예상종료시간
+    hosname = ['S','U','B','C']
+    p1 = Patient.objects.get(id = pn)
+    p1.hos = hosname[tfinal[0][1]]
+    p1.start = tfinal[0][1]
+    p1.end = tfinal[0][2]
+    p1.save()
+                
     return render(request, 'emerapp/user_output.html', {'result': result})
