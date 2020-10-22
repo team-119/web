@@ -1,13 +1,12 @@
 from emerapp.models import Patient
 from emerapp.forms import PatientForm
 from django.shortcuts import render, redirect
-from django.Http import HttpResponse
+from django.http import HttpResponse
 
-import json
 import requests
 import re
 from bs4 import BeautifulSoup as bs
-import time
+#import time
 import threading
 from datetime import datetime
 
@@ -64,7 +63,6 @@ def user_output(request, patient_id):
     sungmo_sur = [-1] #병원별 수술 가능여부(1번째 칸부터 수술1)
     chu_sur = [-1]
     t0 = [] #도착 시간 리스트
-    tbed_sung =[]
     
     #정렬 함수 정의
     def qsort(a):
@@ -285,10 +283,10 @@ def user_output(request, patient_id):
         tfinal = 0 
         sur = p.oper
         emer = p.emer
-        
+        print(emer.type)
         for i in range(n,0,-1): #뒤에서 몇번째
             if sur[i] !=0: #수술 필요시
-                if sur_hos[sur-1][emer-1][-1][0] < p.id[i] #환자코드가 더 크면    
+                if sur_hos[sur-1][emer-1][-1][0] < p.id[i]: #환자코드가 더 크면    
                     if p[i].by == 1: #병원에서 온 사람 
                         if p[i].hos == 'S': #성모 병원 간 사람 
                             if sur_hos[sur-1][emer-1][-1][2] <= t0: #도착하자마자 가능 
@@ -298,11 +296,11 @@ def user_output(request, patient_id):
                             sur_hos[sur-1][emer-1].append([p[i].id,tfinal,tfinal + stay[sur[i]]]) #p.oper[i]
     
                         elif p[i].hos == 'C': #추병원 간 사람 
-                            if chu_hos[sur-1][emer+2][-1][2] <= t0: #도착하자마자 가능 
+                            if sur_hos[sur-1][emer+2][-1][2] <= t0: #도착하자마자 가능 
                                 tfinal = t0
                             else: #기다려야됨
-                                tfinal = chu_hos[sur-1][emer+2][-1][2]
-                            chu_hos[sur-1][emer+2].append([p[i].id,tfinal,tfinal + stay[sur[i]]])
+                                tfinal = sur_hos[sur-1][emer+2][-1][2]
+                            sur_hos[sur-1][emer+2].append([p[i].id,tfinal,tfinal + stay[sur[i]]])
     
                         else :
                             continue 
