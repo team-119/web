@@ -6,7 +6,6 @@ from django.http import HttpResponse
 import requests
 import re
 from bs4 import BeautifulSoup as bs
-#import time
 import threading
 from datetime import datetime
 
@@ -14,31 +13,18 @@ def user_input(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
         if form.is_valid():
-            form.save()
-        return redirect('/api')
+            patient_id = form.save()
+        return redirect('/user_output/{}'.format(patient_id))
     else:
         form = PatientForm()
     return render(request, 'emerapp/user_input.html', {'form': form})
-
-def api(request):
-    if 'hospital' in request.POST:
-        hospital = request.POST.getlist('hospital[]')
-        Patient.ETA_S = hospital[0]
-        Patient.ETA_C = hospital[1]
-        Patient.ETA_B = hospital[2]
-        Patient.ETA_U = hospital[3]
-        Patient.ETE_S = hospital[4]
-        Patient.ETE_C = hospital[5]
-        Patient.ETE_B = hospital[6]
-        Patient.ETE_U = hospital[7]
-    return redirect('/user_output/{}'.format(patient_id))
 
 def hos_input(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
         if form.is_valid():
-            patient_id = form.save()
-            return HttpResponse("successfully saved")
+            form.save()
+        return HttpResponse("successfully saved")
     else:
         form = PatientForm()
     return render(request, 'emerapp/hos_input.html', {'form': form})
@@ -283,7 +269,7 @@ def user_output(request, patient_id):
         tfinal = 0 
         sur = p.oper
         emer = p.emer
-        print(emer.type)
+
         for i in range(n,0,-1): #뒤에서 몇번째
             if sur[i] !=0: #수술 필요시
                 if sur_hos[sur-1][emer-1][-1][0] < p.id[i]: #환자코드가 더 크면    
