@@ -98,15 +98,16 @@
 
             function sleep(selectHospital, thisDelay, end)  // API로딩
             {
-                if (selectHospital == end) {
-                    $("#TIME").val(TIME)
-                    return true;
-                }
-
                 var now = new Date(); // 현재시간 정보로딩              
                 var nowHour = now.getHours(); //현재시
                 var nowMinute = now.getMinutes(); //현재분
                 var TIME = nowHour + ":" + nowMinute;
+
+                if (selectHospital == end) {
+                    $("#TIME").val(TIME)
+                    $("#emerForm").submit();
+                    return true;
+                }
 
                 setTimeout(function()   // 시간지연
                 {
@@ -165,10 +166,10 @@
                     $("#btn_select")
 
                         .click(
-                            function() {
+                            function(e) {
+                                e.preventDefault();
                                 getLocation(); // 현위치 로딩
                                 sleep(0, 600, 4);   // API 계산 및 결과 전송  
-
                             }); // .click [E]
 
             }   // Main [E]
@@ -184,7 +185,7 @@
         </header>
 
         <section style="background-color:rgb(163, 202, 163); padding: 1rem; font-weight: bold;">
-            <form method="POST">
+            <form method="POST" id="emerForm">
                 {% csrf_token %}
 
             <!--전체 체크리스트 [S]-->    
@@ -212,19 +213,19 @@
                             <tr class="diffColor2">
         
                                 <td style="background-color: rgb(175, 53, 63); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer1" name="emer" class="width_90 svdss_cd" value="emer1"
+                                    <input type="radio" id="label_emer1" name="emer" class="width_90 svdss_cd" value="1"
                                     style="margin-left: 1rem">
                                     <label for="label_emer1">&nbsp;긴급</label>
                                 </td>                 
                                                                                                                 
                                 <td style="background-color: rgb(201, 131, 27); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer2" name="emer" class="width_90 svdss_cd" value="emer2">
+                                    <input type="radio" id="label_emer2" name="emer" class="width_90 svdss_cd" value="2">
                                     <label for="label_emer2">&nbsp;응급</label>
                                 </td>
                                 
                                 
                                 <td style="background-color: rgb(78, 116, 47); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer3" name="emer" class="width_90 svdss_cd" value="emer3">
+                                    <input type="radio" id="label_emer3" name="emer" class="width_90 svdss_cd" value="3">
                                     <label for="label_emer3">&nbsp;비응급</label>
                                 </td>
                                                                                                                                                                                  
@@ -474,6 +475,8 @@
             <!--전체 체크리스트 [E]-->
 
             <!--ETE ETA 데이터 전송 [S]-->
+                <input type="hidden" id="by" name="by" value="0">
+
                 <input type="hidden" id="ETE0" name="ETE_S">
                 <input type="hidden" id="ETE1" name="ETE_U">
                 <input type="hidden" id="ETE2" name="ETE_B">
