@@ -14,7 +14,9 @@ def user_input(request):
         form = PatientForm(request.POST)
         if form.is_valid():
             patient_id = form.save()
-        return redirect('/user_output/{}'.format(patient_id))
+            return redirect('/user_output/{}'.format(patient_id))
+        else:
+            return HttpResponse("failed")
     else:
         form = PatientForm()
     return render(request, 'emerapp/user_input.html', {'form': form})
@@ -24,7 +26,9 @@ def hos_input(request):
         form = PatientForm(request.POST)
         if form.is_valid():
             form.save()
-        return HttpResponse("successfully saved")
+            return HttpResponse("successfully saved")
+        else:
+            return HttpResponse("failed")
     else:
         form = PatientForm()
     return render(request, 'emerapp/hos_input.html', {'form': form})
@@ -263,7 +267,7 @@ def user_output(request, patient_id):
         #수술실 타임라인 가져오기
         #지금 있는거보다 더 많으면 가져오기
         #아니면 직접 온 사람일때 가져오기 (by = 1)
-        p = Patient.objects
+        p = Patient.objects.get(id=patient_id)
         n = Patient.objects.count()
         t0 = datetime.today() 
         tfinal = 0 

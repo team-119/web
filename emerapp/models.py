@@ -6,15 +6,15 @@ class Patient(models.Model):
     hos = models.CharField(max_length=1, null=True)
     by = models.IntegerField(default=0) #0이면 구급대원, 1이면 병
     
-    ETE_S = models.CharField(default=0, max_length=5)
-    ETE_C = models.CharField(default=0, max_length=5)
-    ETE_B = models.CharField(default=0, max_length=5)
-    ETE_U = models.CharField(default=0, max_length=5)
+    ETE_S = models.CharField(default="0", max_length=5, blank=True)
+    ETE_C = models.CharField(default="0", max_length=5, blank=True)
+    ETE_B = models.CharField(default="0", max_length=5, blank=True)
+    ETE_U = models.CharField(default="0", max_length=5, blank=True)
     
-    ETA_S = models.CharField(default=0, max_length=5)
-    ETA_C = models.CharField(default=0, max_length=5)
-    ETA_B = models.CharField(default=0, max_length=5)
-    ETA_U = models.CharField(default=0, max_length=5)
+    ETA_S = models.CharField(default="0", max_length=5, blank=True)
+    ETA_C = models.CharField(default="0", max_length=5, blank=True)
+    ETA_B = models.CharField(default="0", max_length=5, blank=True)
+    ETA_U = models.CharField(default="0", max_length=5, blank=True)
     
     def __str__(self):
         return str(self.id)
