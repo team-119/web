@@ -2,10 +2,15 @@
 <html lang="ko" xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>HOSPITAL input</title>
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300">
+
         <style>
-            html { font-size: 10px; margin: 0;
+            html {
+                font-family: 'Source Sans Pro', sans-serif;
+                font-weight: 300;
+                font-size: 10px;
+                margin: 0;
             }
             header {
                 background-color: white;
@@ -50,9 +55,28 @@
                 clear: both;
             }
             header,nav,footer{text-align: center;}
+            
+            .wrapper {
+                background: #50a3a2;
+                background: linear-gradient(to bottom right, #50a3a2 0%, #53e3a6 100%);
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
 
-            #clock { text-align: right; margin: 1%; font-weight: bold; font-size: 1.5rem; color:saddlebrown;}
-            h1 { font-size: 40px; }
+                overflow: hidden;
+            }
+
+            #clock {
+                text-align: right;
+                margin: 1%;
+                font-family: 'Source Sans Pro', sans-serif;
+                font-weight: 300;
+                font-size: 1.5rem;
+                color:saddlebrown;
+                }
+            h1 { font-size: 40px; font-family: 'Source Sans Pro'; font-weight: 300;}
             h2 { font-size: 30px; }
             td { font-size: 1.1rem; font-weight: bolder;}
             .tableboxTitle { margin-top: 0%; margin-bottom: 0%; padding: 1rem; font-size: 1.3rem;}
@@ -73,7 +97,14 @@
             }
         </style>
 
+        <script   src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script>
+            var s = {name: "[권역][외상]가톨릭대학교의정부성모병원", lat: 37.758568, lon: 127.077705};
+            var u = {name: "[기관]경기도의료원의정부병원", lat: 37.741181, lon: 127.042525};
+            var b = {name: "[기관]의료법인영동의료재단의정부백병원", lat: 37.745791, lon: 127.061916};
+            var c = {name: "[기관]추병원", lat: 37.750760, lon: 127.046260};
+            const hospital = [s, u, b, c];
+
             function printTime() // 페이지에 시간 출력
             {
                 var clock = document.getElementById("clock");
@@ -94,15 +125,21 @@
 
                 $("#btn_select")
                     .click(
-                        function() {
+                        function(e) {
+                            e.preventDefault();
+                            var selectHospital = $("#selectHospital").val();
+                            $("#HOS").val(selectHospital);
 
-                            /*
-                            
-                                $( "<ul>" )
-                                .append( "asdfasdfasdf" 시간 + 추가한 환자정보 내용 ) //@ 환자정보 입력 로그 창 제작 / 선택정보 따라 로그 추가.
-                                .appendTo( "#log" );
+                            var now = new Date(); // 현재시간 정보로딩 
+                            var nowHour = now.getHours(); //현재시
+                            var nowMinute = now.getMinutes(); //현재분
+                            var ETA = nowHour + ":" + nowMinute;             
+                            $("#TIME").val(now);
 
-                            */
+                            $("#ETE"+selectHospital).val("0");
+                            $("#ETA"+selectHospital).val(ETA);
+                            $("#emerForm").submit();
+                            // db 데이터 가져오는 함수 추가
 
                         }); // .click [E]
 
@@ -114,364 +151,364 @@
     </head>
     <body onload="Main()">
 
-        <header>
-            <h1 style="text-align: center; color: #9494ff;">EMERSERVICE <span style="color: #c7c7ff; font-size: 3.8rem;">HOSPITAL</span></h1>
-            <h2 style="text-align: center; color: #6e7380;">응급환자정보입력<div id="clock"></div></h2>
-        </header>
-
-        <section>
-            <div style="background-color: rgb(161 173 165)">
-                <p style="font-size: 1rem; font-weight: bold;">&nbsp;&nbsp;환자정보 작성</p>
-            </div>
-            <form method="POST">
-                {% csrf_token %}
-            <!--전체 체크리스트 [S]-->    
-                <!-- 응급도정보 [S]-->                                                      
-                <div class="emer-table">
-                    <h2 class="tableboxTitle">
-                        <span style="font-size: 1.5rem;" class="bull">●</span>&nbsp;응급도
-                        &nbsp;&nbsp;
-                    </h2>
-                    <table class="tablebox" id="emer-tablebox">
-                        <colgroup>
-                            
-                                <col width="25.0%">
-                            
-                                <col width="25.0%">
-                            
-                                <col width="25.0%">
-                            
-                                <col width="25.0%">
-                            
-                        </colgroup>
-        
-                        <tbody>
-                            
-                            <tr class="diffColor2">
-        
-                                <td style="background-color: rgb(175, 53, 63); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer1" name="emer" value="1">
-                                    <label for="label_emer1">&nbsp;긴급</label>
-                                </td>                 
-                                                                                                                
-                                <td style="background-color: rgb(201, 131, 27); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer2" name="emer" class="width_90 svdss_cd" value="2">
-                                    <label for="label_emer2">&nbsp;응급</label>
-                                </td>
+        <div class="wrapper">
+            <header>
+                <h1 style="text-align: center; color: #9494ff;">EMERSERVICE <span style="color: #c7c7ff; font-size: 3.8rem;">HOSPITAL</span></h1>
+                <h2 style="text-align: center; color: #6e7380;">
+                <span class="ft_area">
+                    <select id="selectHospital">
+                        <option value="0" selected="selected">[권역][외상]가톨릭대학교의정부성모병원</option>
+                        <option value="1">[기관]경기도의료원의정부병원</option>
+                        <option value="2">[기관]의료법인영동의료재단의정부백병원</option>
+                        <option value="3">[기관]추병원</option>
+                    </select>
+                    <button id="btn_select">병원설정</button>
+                </span>
+                <span id="clock"></span></h2>
+            </header>
+    
+            <section>
+                <div style="background-color:rgb(187, 198, 212)">
+                    <p style="font-size: 1.5rem; font-weight: bold; margin: 0;">&nbsp;&nbsp;환자정보 작성</p>
+                </div>
+                <form method="POST" id="emerForm">
+                    {% csrf_token %}
+                <!--전체 체크리스트 [S]-->    
+                    <!-- 응급도정보 [S]-->                                                      
+                    <div class="emer-table">
+                        <h2 class="tableboxTitle">
+                            <span style="font-size: 1.5rem;" class="bull">●</span>&nbsp;응급도
+                            &nbsp;&nbsp;
+                        </h2>
+                        <table class="tablebox" id="emer-tablebox">
+                            <colgroup>
                                 
+                                    <col width="25.0%">
                                 
-                                <td style="background-color: rgb(78, 116, 47); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer3" name="emer" class="width_90 svdss_cd" value="3" checked>
-                                    <label for="label_emer3">&nbsp;비응급</label>
-                                </td>
-                                                                                                                                                                                 
+                                    <col width="25.0%">
+                                
+                                    <col width="25.0%">
+                                
+                                    <col width="25.0%">
+                                
+                            </colgroup>
+            
+                            <tbody>
+                                
+                                <tr class="diffColor2">
+            
+                                    <td style="background-color: rgb(175, 53, 63); color: white; padding: 0.5rem;">
+                                        <input type="radio" id="label_emer1" name="emer" value="1">
+                                        <label for="label_emer1">&nbsp;긴급</label>
+                                    </td>                 
+                                                                                                                    
+                                    <td style="background-color: rgb(201, 131, 27); color: white; padding: 0.5rem;">
+                                        <input type="radio" id="label_emer2" name="emer" value="2">
+                                        <label for="label_emer2">&nbsp;응급</label>
+                                    </td>
+                                    
+                                    
+                                    <td style="background-color: rgb(78, 116, 47); color: white; padding: 0.5rem;">
+                                        <input type="radio" id="label_emer3" name="emer" value="3" checked="checked">
+                                        <label for="label_emer3">&nbsp;비응급</label>
+                                    </td>
+                                                                                                                                                                                     
+                        
+                                </tr></tbody>
+                        </table>
+                    </div>
+                    <!--  응급도정보 [E]-->                
                     
-                            </tr></tbody>
-                    </table>
-                </div>
-                <!--  응급도정보 [E]-->                
-                
-                <!-- 중증응급질환정보 [S]-->
-                <div class="oper-table">
-                    <h2 class="tableboxTitle"> 
-                        <span style="font-size: 1.5rem;" class="bull">●</span>&nbsp;중증응급질환정보
-                        &nbsp;&nbsp;
-                    </h2>
-                    <table class="tablebox" id="oper-tablebox">
-                        <colgroup>
-                            
-                                <col width="25.0%">
-                            
-                                <col width="25.0%">
-                            
-                                <col width="25.0%">
-                            
-                                <col width="25.0%">
-                            
-                        </colgroup>
-        
-                        <tbody>
-                            
-                                <tr class="diffColor2">
-                                    <td style="padding: 0.5rem;">
-                                        <input type="radio" id="label_oper1" name="oper" value="1">
-                                        <label for="label_oper1">[재관류중재술] 심근경색</label>
-                                    </td>
-                                                                
-                                                                                                                    
-                                    <td>
-                                        <input type="radio" id="label_oper2" name="oper" value="2">
-                                        <label for="label_oper2">[재관류중재술] 뇌경색</label>
-                                    </td>
-                                    
-                                                                                                                    
+                    <!-- 중증응급질환정보 [S]-->
+                    <div class="oper-table">
+                        <h2 class="tableboxTitle"> 
+                            <span style="font-size: 1.5rem;" class="bull">●</span>&nbsp;중증응급질환정보
+                            &nbsp;&nbsp;
+                        </h2>
+                        <table class="tablebox" id="oper-tablebox">
+                            <colgroup>
                                 
-                                    <td>
-                                        <input type="radio" id="label_oper3" name="oper" value="3">
-                                        <label for="label_oper3">[뇌출혈수술] 거미막하출혈</label>
-                                    </td>
-                                                                
-                                                            
+                                    <col width="25.0%">
                                 
-                                    <td>
-                                        <input type="radio" id="label_oper4" name="oper" value="4">
-                                        <label for="label_oper4">[뇌출혈수술] 거미막하출혈외</label>
-                                    </td>
-                                    
-                                </tr>
-                                                          
-                            
-                                <tr class="diffColor1">
-                                    <td  style="padding: 0.5rem;">
-                                        <input type="radio" id="label_oper5" name="oper" value="5">
-                                        <label for="label_oper5">[대동맥응급] 흉부</label>
-                                    </td>
-                                    
+                                    <col width="25.0%">
                                 
-                                                                                                                
-                                    <td>
-                                        <input type="radio" id="label_oper6" name="oper" value="6">
-                                        <label for="label_oper6">[대동맥응급] 복부</label>
-                                    </td>
-                                                                                                                                
-                            
+                                    <col width="25.0%">
                                 
-                                    <td>
-                                        <input type="radio" id="label_oper7" name="oper" value="7">
-                                        <label for="label_oper7">[담낭담관질환] 담낭질환</label>
-                                    </td>
-                                    
+                                    <col width="25.0%">
                                 
-                                                                                                                    
-                                    <td>
-                                        <input type="radio" id="label_oper8" name="oper" value="8">
-                                        <label for="label_oper8">[담낭담관질환] 담도포함질환</label>
-                                    </td>
-                                    
-                                </tr>
-                                                            
-                            
-                                <tr class="diffColor2">
-                                    <td style="padding: 0.5rem;">
-                                        <input type="radio" id="label_oper9" name="oper" value="9">
-                                        <label for="label_oper9">[복부응급수술] 비외상</label>
-                                    </td>
-                                    
+                            </colgroup>
+            
+                            <tbody>
                                 
+                                    <tr class="diffColor2">
+                                        <td style="padding: 0.5rem;">
+                                            <input type="radio" id="label_oper1" name="oper" value="1">
+                                            <label for="label_oper1">[재관류중재술] 심근경색</label>
+                                        </td>
+                                                                    
                                                                                                                         
-                                    <td>
-                                        <input type="radio" id="label_oper10" name="oper" value="10">
-                                        <label for="label_oper10">[장중첩/폐색] 영유아</label>
-                                    </td>
-                                                                                                                                
-                            
-                                
-                                    <td>
-                                        <input type="radio" id="label_oper11" name="oper" value="11">
-                                        <label for="label_oper11">[사지접합의수술] 수족지접합</label>
-                                    </td>
-                                    
-                                
-                                                                                                                        
-                                    <td>
-                                        <input type="radio" id="label_oper12" name="oper" value="12">
-                                        <label for="label_oper12">[사지접합의수술] 수족지접합외</label>
-                                    </td>
-                                    
-                                </tr>
-                            
-                                                            
-                                <tr class="diffColor1">
-                                    <td style="padding: 0.5rem;">
-                                        <input type="radio" id="label_oper13" name="oper" value="13">
-                                        <label for="label_oper13">[위장관응급내시경] 성인</label>
-                                    </td>
-                                    
-                                
-                                                                                                                        
-                                    <td>
-                                        <input type="radio" id="label_oper14" name="oper" value="14">
-                                        <label for="label_oper14">[위장관응급내시경] 영유아</label>
-                                    </td>
-                                    
-                                
-                                                                                                                        
-                                    <td>
-                                        <input type="radio" id="label_oper15" name="oper" value="15">
-                                        <label for="label_oper15">[기관지응급내시경] 성인</label>
-                                    </td>
-                                    
-                                
-                                                                                                                    
-                                    <td>
-                                        <input type="radio" id="label_oper16" name="oper" value="16">
-                                        <label for="label_oper16">[기관지응급내시경] 영유아</label>
-                                    </td>
-                                    
-                                </tr>
-                                                            
-                            
-                                <tr class="diffColor2">
-                                    <td style="padding: 0.5rem;">
-                                        <input type="radio" id="label_oper17" name="oper" value="17">
-                                        <label for="label_oper17">[산부인과응급] 분만</label>
-                                    </td>
-                                    
-                                
-                                                                                        
-                                
-                                    <td>
-                                        <input type="radio" id="label_oper18" name="oper" value="18">
-                                        <label for="label_oper18">[산부인과응급] 산과수술</label>
-                                    </td>
-                                                                                                                                
-                            
-                                
-                                    <td>
-                                        <input type="radio" id="label_oper19" name="oper" value="19">
-                                        <label for="label_oper19">[산부인과응급] 부인과수술</label>
-                                    </td>
-                                    
-                                
-                                                                                        
-                                
-                                    <td>
-                                        <input type="radio" id="label_oper20" name="oper" value="20">
-                                        <label for="label_oper20">[안과적응급수술]</label>
-                                    </td>
-                                    
-                                </tr>
-                            
-                                                           
-                                <tr class="diffColor1">
-                                    <td style="padding: 0.5rem;">
-                                        <input type="radio" id="label_oper21" name="oper" value="21">
-                                        <label for="label_oper21">[응급투석] HD</label>
-                                    </td>
-                                    
-                                
-                            
-                                                                                            
-                                    <td>
-                                        <input type="radio" id="label_oper22" name="oper" value="22">
-                                        <label for="label_oper22">[응급투석] CRRT</label>
-                                    </td>
-                                    
-                                
-                            
-                                                                                            
-                                    <td>
-                                        <input type="radio" id="label_oper23" name="oper" value="23">
-                                        <label for="label_oper23">[영상의학혈관중재] 성인</label>
-                                    </td>
-                                    
-                                
-                            
-                                                                                            
-                                    <td>
-                                        <input type="radio" id="label_oper24" name="oper" value="24">
-                                        <label for="label_oper24">[영상의학혈관중재] 영유아</label>
-                                    </td>
-                                    
-                                </tr>
-                            
-                                                            
-                                <tr class="diffColor2">
-                                    <td style="padding: 0.5rem;">
-                                        <input type="radio" id="label_oper25" name="oper" value="25">
-                                        <label for="label_oper25">[정신과적 응급] 폐쇄병동입원</label>
-                                    </td>
-                                    
-                                
-                                                                                        
-                                
-                                    <td>
-                                        <input type="radio" id="label_oper26" name="oper" value="26">
-                                        <label for="label_oper26">[중증화상]</label>
-                                    </td>
-                                    
-                                
-                            
-                                                                                            
-                                    <td>
-                                        <input type="radio" id="label_oper27" name="oper" value="27">
-                                        <label for="label_oper27">[저출생체중아]</label>
-                                    </td>
-                                    
+                                        <td>
+                                            <input type="radio" id="label_oper2" name="oper" value="2">
+                                            <label for="label_oper2">[재관류중재술] 뇌경색</label>
+                                        </td>
                                         
-                                    <td style="background-color:rgb(126, 142, 151);">
-                                        <input type="radio" id="label_oper0" name="oper" value="0" checked>
-                                        <label for="label_oper0" style="font-weight: bolder; color: white;">수술 안함</label>
-                                    </td>                                                                                                                                        
-                                               
-                        </tr></tbody>
-                    </table>
+                                                                                                                        
+                                    
+                                        <td>
+                                            <input type="radio" id="label_oper3" name="oper" value="3">
+                                            <label for="label_oper3">[뇌출혈수술] 거미막하출혈</label>
+                                        </td>
+                                                                    
+                                                                
+                                    
+                                        <td>
+                                            <input type="radio" id="label_oper4" name="oper" value="4">
+                                            <label for="label_oper4">[뇌출혈수술] 거미막하출혈외</label>
+                                        </td>
+                                        
+                                    </tr>
+                                                              
+                                
+                                    <tr class="diffColor1">
+                                        <td  style="padding: 0.5rem;">
+                                            <input type="radio" id="label_oper5" name="oper" value="5">
+                                            <label for="label_oper5">[대동맥응급] 흉부</label>
+                                        </td>
+                                        
+                                    
+                                                                                                                    
+                                        <td>
+                                            <input type="radio" id="label_oper6" name="oper" value="6">
+                                            <label for="label_oper6">[대동맥응급] 복부</label>
+                                        </td>
+                                                                                                                                    
+                                
+                                    
+                                        <td>
+                                            <input type="radio" id="label_oper7" name="oper" value="7">
+                                            <label for="label_oper7">[담낭담관질환] 담낭질환</label>
+                                        </td>
+                                        
+                                    
+                                                                                                                        
+                                        <td>
+                                            <input type="radio" id="label_oper8" name="oper" value="8">
+                                            <label for="label_oper8">[담낭담관질환] 담도포함질환</label>
+                                        </td>
+                                        
+                                    </tr>
+                                                                
+                                
+                                    <tr class="diffColor2">
+                                        <td style="padding: 0.5rem;">
+                                            <input type="radio" id="label_oper9" name="oper" value="9">
+                                            <label for="label_oper9">[복부응급수술] 비외상</label>
+                                        </td>
+                                        
+                                    
+                                                                                                                            
+                                        <td>
+                                            <input type="radio" id="label_oper10" name="oper" value="10">
+                                            <label for="label_oper10">[장중첩/폐색] 영유아</label>
+                                        </td>
+                                                                                                                                    
+                                
+                                    
+                                        <td>
+                                            <input type="radio" id="label_oper11" name="oper" value="11">
+                                            <label for="label_oper11">[사지접합의수술] 수족지접합</label>
+                                        </td>
+                                        
+                                    
+                                                                                                                            
+                                        <td>
+                                            <input type="radio" id="label_oper12" name="oper" value="12">
+                                            <label for="label_oper12">[사지접합의수술] 수족지접합외</label>
+                                        </td>
+                                        
+                                    </tr>
+                                
+                                                                
+                                    <tr class="diffColor1">
+                                        <td style="padding: 0.5rem;">
+                                            <input type="radio" id="label_oper13" name="oper" value="13">
+                                            <label for="label_oper13">[위장관응급내시경] 성인</label>
+                                        </td>
+                                        
+                                    
+                                                                                                                            
+                                        <td>
+                                            <input type="radio" id="label_oper14" name="oper" value="14">
+                                            <label for="label_oper14">[위장관응급내시경] 영유아</label>
+                                        </td>
+                                        
+                                    
+                                                                                                                            
+                                        <td>
+                                            <input type="radio" id="label_oper15" name="oper" value="15">
+                                            <label for="label_oper15">[기관지응급내시경] 성인</label>
+                                        </td>
+                                        
+                                    
+                                                                                                                        
+                                        <td>
+                                            <input type="radio" id="label_oper16" name="oper" value="16">
+                                            <label for="label_oper16">[기관지응급내시경] 영유아</label>
+                                        </td>
+                                        
+                                    </tr>
+                                                                
+                                
+                                    <tr class="diffColor2">
+                                        <td style="padding: 0.5rem;">
+                                            <input type="radio" id="label_oper17" name="oper" value="17">
+                                            <label for="label_oper17">[산부인과응급] 분만</label>
+                                        </td>
+                                        
+                                    
+                                                                                            
+                                    
+                                        <td>
+                                            <input type="radio" id="label_oper18" name="oper" value="18">
+                                            <label for="label_oper18">[산부인과응급] 산과수술</label>
+                                        </td>
+                                                                                                                                    
+                                
+                                    
+                                        <td>
+                                            <input type="radio" id="label_oper19" name="oper" value="19">
+                                            <label for="label_oper19">[산부인과응급] 부인과수술</label>
+                                        </td>
+                                        
+                                    
+                                                                                            
+                                    
+                                        <td>
+                                            <input type="radio" id="label_oper20" name="oper" value="20">
+                                            <label for="label_oper20">[안과적응급수술]</label>
+                                        </td>
+                                        
+                                    </tr>
+                                
+                                                               
+                                    <tr class="diffColor1">
+                                        <td style="padding: 0.5rem;">
+                                            <input type="radio" id="label_oper21" name="oper" value="21">
+                                            <label for="label_oper21">[응급투석] HD</label>
+                                        </td>
+                                        
+                                    
+                                
+                                                                                                
+                                        <td>
+                                            <input type="radio" id="label_oper22" name="oper" value="22">
+                                            <label for="label_oper22">[응급투석] CRRT</label>
+                                        </td>
+                                        
+                                    
+                                
+                                                                                                
+                                        <td>
+                                            <input type="radio" id="label_oper23" name="oper" value="23">
+                                            <label for="label_oper23">[영상의학혈관중재] 성인</label>
+                                        </td>
+                                        
+                                    
+                                
+                                                                                                
+                                        <td>
+                                            <input type="radio" id="label_oper24" name="oper" value="24">
+                                            <label for="label_oper24">[영상의학혈관중재] 영유아</label>
+                                        </td>
+                                        
+                                    </tr>
+                                
+                                                                
+                                    <tr class="diffColor2">
+                                        <td style="padding: 0.5rem;">
+                                            <input type="radio" id="label_oper25" name="oper" value="25">
+                                            <label for="label_oper25">[정신과적 응급] 폐쇄병동입원</label>
+                                        </td>
+                                        
+                                    
+                                                                                            
+                                    
+                                        <td>
+                                            <input type="radio" id="label_oper26" name="oper" value="26">
+                                            <label for="label_oper26">[중증화상]</label>
+                                        </td>
+                                        
+                                    
+                                
+                                                                                                
+                                        <td>
+                                            <input type="radio" id="label_oper27" name="oper" value="27">
+                                            <label for="label_oper27">[저출생체중아]</label>
+                                        </td>
+                                        
+                                            
+                                        <td style="background-color:rgb(126, 142, 151);">
+                                            <input type="radio" id="label_oper0" name="oper" value="0" checked="checked">
+                                            <label for="label_oper0" style="font-weight: bolder; color: white;">수술 안함</label>
+                                        </td>                                                                                                                                        
+                                                   
+                            </tr></tbody>
+                        </table>
+                    </div>
+                    <!-- 중증응급질환정보 [E]-->
+                <!--전체 체크리스트 [E]-->
+    
+                <!--ETE ETA 데이터 전송 [S]-->
+                <input type="hidden" id="HOS" name="hos">
+    
+                <input type="hidden" id="ETE0" name="ETE_S" value="-">
+                <input type="hidden" id="ETE1" name="ETE_U" value="-">
+                <input type="hidden" id="ETE2" name="ETE_B" value="-">
+                <input type="hidden" id="ETE3" name="ETE_C" value="-">
+    
+                <input type="hidden" id="ETA0" name="ETA_S" value="-">
+                <input type="hidden" id="ETA1" name="ETA_U" value="-">
+                <input type="hidden" id="ETA2" name="ETA_B" value="-">
+                <input type="hidden" id="ETA3" name="ETA_C" value="-">
+    
+                <input type="hidden" id="TIME" name="time">
+                <!--ETE ETA 데이터 전송 [E]-->    
+    
+                    <p style="align-content: center;"><input type="reset" class="button" value="RESET">
+                        <input type="submit" class="button" id="btn_select" value="ADD"></p>
+    
+                </form>
+            </section>
+            
+            <aside style="font-size: 1.5rem;">
+                <div style="background-color: rgb(187, 198, 212);">
+                    <p style="font-size: 1.5rem; font-weight: bold; margin: 0;">&nbsp;&nbsp;응급환자 발생 현황</p>
                 </div>
-                <!-- 중증응급질환정보 [E]-->
-            <!--전체 체크리스트 [E]-->
+                <ul id="log">
+                    
+                    <div class="container">
+                        <table>
+                            <thead>
+                            <tr>
+                                <td><B>번호</B></td>
+                                <td><B>응급도</B></td>
+                                <td><B>수술</B></td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for patient in patients %}
+                            <tr>
+                                <td>{{patient.id}}번</td>
+                                <td>{{patient.emer}}</td>
+                                <td>{{patient.oper}}</td>
+                            </tr>
+                            {% endfor %}
+                            <tbody>
+                        </table>
 
-            <!--ETE ETA 데이터 전송 [S]-->
-            <input type="hidden" id="by" name="by" value="1">
-
-            <input type="hidden" id="ETE0" name="ETE_S">
-            <input type="hidden" id="ETE1" name="ETE_U">
-            <input type="hidden" id="ETE2" name="ETE_B">
-            <input type="hidden" id="ETE3" name="ETE_C">
-
-            <input type="hidden" id="ETA0" name="ETA_S">
-            <input type="hidden" id="ETA1" name="ETA_U">
-            <input type="hidden" id="ETA2" name="ETA_B">
-            <input type="hidden" id="ETA3" name="ETA_C">
-
-            <input type="hidden" id="TIME" name="TIME">
-            <!--ETE ETA 데이터 전송 [E]-->    
-
-                <p style="align-content: center;"><input type="reset" class="button" value="RESET">
-                    <input type="submit" class="button" id="btn_select" value="ADD"></p>
-
-            </form>
-        </section>
-        
-        <aside style="font-size: 1.5rem;">
-            <div style="background-color: rgb(187, 198, 212);">
-                <p style="font-size: 1rem; font-weight: bold;">&nbsp;&nbsp;응급환자 접수 목록</p>
-            </div>
-            <ul id="log">
-                <li>#2020_10_24 10:01 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 10:11 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 11:04 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 11:22 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 12:32 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 14:49 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 15:12 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 15:23 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 16:34 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 16:35 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 10:01 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 10:11 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 11:04 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 11:22 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 12:32 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 14:49 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 15:12 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 15:23 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 16:34 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 16:35 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 10:01 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 10:11 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 11:04 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 11:22 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 12:32 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 14:49 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 15:12 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 15:23 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 16:34 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                <li>#2020_10_24 16:35 // 응급도: 응급 / 중증응급질환정보: 사지접합의수술</li>
-                
-
-
-            </ul>
-        </aside>
+                </ul>
+            </aside>
+        </div>
 
 
     </body>

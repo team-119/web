@@ -3,14 +3,29 @@
 <html lang="ko" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMBULANCE input</title>
-    <link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300">
 
     <style>
-        html { font-size: 10px; margin: 0px;}
+        @font-face {
+            font-family: 'Source Sans Pro';
+            font-style: normal;
+            font-weight: 200;
+            src: local('Source Sans Pro ExtraLight'), local('SourceSansPro-ExtraLight'), url(https://fonts.gstatic.com/s/sourcesanspro/v14/6xKydSBYKcSV-LCoeQqfX1RYOo3i94_wlxdr.ttf) format('truetype');
+        }
+        @font-face {
+            font-family: 'Source Sans Pro';
+            font-style: normal;
+            font-weight: 300;
+            src: local('Source Sans Pro Light'), local('SourceSansPro-Light'), url(https://fonts.gstatic.com/s/sourcesanspro/v14/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdr.ttf) format('truetype');
+        }
 
-        header {
+        html{
+            font-size: 10px;
+            margin: 0px;
+        }
+
+        header{
             background-color: white;
             width: 100%;
             height: 120px;
@@ -19,14 +34,14 @@
             margin-bottom: 10px;
             position: static;
         }
-        nav {
+        nav{
             background-color: rgb(187, 198, 212);
             width: 100%;
             height: 60px;
             line-height: 10px;
             position: relative;
         }
-        section {
+        section{
             background-color: rgb(192, 219, 192);
             width: 52%;
             height: 450px;
@@ -34,7 +49,7 @@
             float: left;
             overflow-y: auto;
         }
-        aside {
+        aside{
             background-color: rgb(231, 231, 231);
             padding: 0;
             width: 48%;
@@ -43,11 +58,11 @@
             float: right;
             overflow-y: auto;
         }
-        footer {
-            background-color: rgb(218, 218, 218);
+        footer{
+            background-color: rgb(255, 255, 255);
+            padding-top: 5%;
             width: 100%;
-            height: 150px;
-            line-height: 10px;
+            height: 40px;
             position: relative;
             clear: both;
         }
@@ -85,7 +100,26 @@
 
         .button:active{
             transform: scale(1.025);
-            }
+        }
+
+        #loadingBar{
+            transition: all 2.4s;
+            width: 0%;
+            margin: auto;
+            height: 20px;
+            background-color: rgb(218, 57, 71);
+            float: left;
+        }
+        #egenlink{
+            text-align: left;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.6rem;
+            color: rgb(24, 23, 23);
+            background-color: rgb(168, 192, 236);
+            padding: 10px;
+        }
+
 
     </style>
 
@@ -183,7 +217,8 @@
         function sleep(selectHospital, thisDelay, end)  // API로딩
         {
             if (selectHospital == end) {
-                $("#TIME").val(TIME)
+                var time = new Date();
+                $("#TIME").val(time)
                 $("#emerForm").submit(); // submit 재실행
                 return true;
             }
@@ -191,7 +226,6 @@
             var now = new Date(); // 현재시간 정보로딩              
             var nowHour = now.getHours(); //현재시
             var nowMinute = now.getMinutes(); //현재분
-            var TIME = nowHour + ":" + nowMinute;
 
             setTimeout(function()   // 시간지연
             {
@@ -239,6 +273,12 @@
             }, thisDelay);  // setTimeout [E]
         }   // sleep [E]
 
+        /* @function checkcolor(t, mycolor)   // css에서 하는 방법도 있을듯..
+        {
+            td = t.parentNode;
+            td.style.backgroundColor = (t.checked) ? "blue" : mycolor
+        }*/
+
         function Main()   // 메인함수
         {
             printTime();    // 0. 페이지에 시계출력
@@ -251,8 +291,10 @@
                 .click(
                     function(e) {
                         e.preventDefault();
+                        $("#btn_select").val("Matching...")
                         getLocation(); // 현위치 로딩
-                        sleep(0, 600, 4);   // API 계산 및 결과 전송  
+                        sleep(0, 600, 4);   // API 계산 및 결과 전송
+                        $('#loadingBar').animate({'width':'97%'}, 1000);
                 }); // .click [E]
 
         }   // Main [E]
@@ -266,7 +308,7 @@
     </header>
 
     <section id="check_area">
-        <div style="padding: 1rem; font-weight: bold;">
+        <div style="padding: 1rem; padding-bottom: 0; margin-bottom:0; font-weight: bold;">
             <form method="POST" id="emerForm">
                 {% csrf_token %}
                 
@@ -296,19 +338,19 @@
                             <tr class="diffColor2">
         
                                 <td style="background-color: rgb(175, 53, 63); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer1" name="emer" class="width_90 svdss_cd" value="1"
+                                    <input type="radio" id="label_emer1" name="emer" value="1" onclick="checkcolor(this, this.backgroundColor)"
                                     style="margin-left: 1rem">
                                     <label for="label_emer1">&nbsp;긴급</label>
                                 </td>                 
                                                                                                                 
                                 <td style="background-color: rgb(201, 131, 27); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer2" name="emer" class="width_90 svdss_cd" value="2">
+                                    <input type="radio" id="label_emer2" name="emer" value="2" onclick="checkcolor(this, this.backgroundColor)">
                                     <label for="label_emer2">&nbsp;응급</label>
                                 </td>
                                 
                                 
                                 <td style="background-color: rgb(78, 116, 47); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer3" name="emer" class="width_90 svdss_cd" value="3" checked>
+                                    <input type="radio" id="label_emer3" name="emer" value="3"  onclick="checkcolor(this, this.backgroundColor)" checked>
                                     <label for="label_emer3">&nbsp;비응급</label>
                                 </td>
                                                                                                                                                                                  
@@ -559,7 +601,7 @@
 
 
             <!--ETE ETA 데이터 전송 [S]-->
-                <input type="hidden" id="by" name="by" value="0">
+                <input type="hidden" id="HOS" name="hos" value="-">
 
                 <input type="hidden" id="ETE0" name="ETE_S">
                 <input type="hidden" id="ETE1" name="ETE_U">
@@ -571,19 +613,23 @@
                 <input type="hidden" id="ETA2" name="ETA_B">
                 <input type="hidden" id="ETA3" name="ETA_C">
 
-                <input type="hidden" id="TIME" name="TIME">
+                <input type="hidden" id="TIME" name="time">
             <!--ETE ETA 데이터 전송 [E]-->    
 
 
                 <p><input type="reset" class="button" value="RESET">
-                    <input type="submit" class="button" id="btn_select" value="MATCH"></p>
-
+                    <input type="submit" class="button" id="btn_select" value="SUBMIT"></p>
+                <div id="loadingBar"></div>
             </form>
         </div>
     </section>
     <aside id="map_area">
         <div id="map_div"></div>
     </aside>
+    
+    <footer>
+        <a href=http://portal.nemc.or.kr/medi_info/dashboards/dash_total_emer_org_popup_for_egen.do id="egenlink">EGEN 종합상황판</a>
+    </footer>
 
 </body>
 </html>

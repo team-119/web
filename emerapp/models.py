@@ -3,8 +3,8 @@ from django.db import models
 class Patient(models.Model):
     emer = models.IntegerField(default=1) #1:비응, 3:응
     oper = models.IntegerField(default=0) #0이면 수술 노필요
-    hos = models.CharField(max_length=1, null=True)
-    by = models.IntegerField(default=0) #0이면 구급대원, 1이면 병
+    hos = models.CharField(default="-", max_length=1) #0:성모, 1:의료원, 2:백, 3:추, 4:user_input
+    time = models.CharField(default="0", max_length=45) #현재시간 
     
     ETE_S = models.CharField(default="0", max_length=5, blank=True)
     ETE_C = models.CharField(default="0", max_length=5, blank=True)

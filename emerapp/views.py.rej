@@ -1,0 +1,9 @@
+diff a/emerapp/views.py b/emerapp/views.py	(rejected hunks)
+@@ -63,7 +63,6 @@
+     sungmo_sur = [-1] #병원별 수술 가능여부(1번째 칸부터 수술1)
+     chu_sur = [-1]
+     t0 = [] #도착 시간 리스트
+-    tbed_sung =[]
+     
+     #정렬 함수 정의
+     def qsort(a):

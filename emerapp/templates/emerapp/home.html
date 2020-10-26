@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300">
+    <title>EMERSERVICE main</title>
+    <style>
+        @font-face {
+            font-family: 'Source Sans Pro';
+            font-style: normal;
+            font-weight: 200;
+            src: local('Source Sans Pro ExtraLight'), local('SourceSansPro-ExtraLight'), url(https://fonts.gstatic.com/s/sourcesanspro/v14/6xKydSBYKcSV-LCoeQqfX1RYOo3i94_wlxdr.ttf) format('truetype');
+        }
+        @font-face {
+            font-family: 'Source Sans Pro';
+            font-style: normal;
+            font-weight: 300;
+            src: local('Source Sans Pro Light'), local('SourceSansPro-Light'), url(https://fonts.gstatic.com/s/sourcesanspro/v14/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdr.ttf) format('truetype');
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Source Sans Pro', sans-serif;
+            color: white;
+            font-weight: 300;
+        }
+        .wrapper {
+            background: #50a3a2;
+            background: linear-gradient(to bottom right, #50a3a2 0%, #53e3a6 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+
+            overflow: hidden;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 80px 0;
+            height: 400px;
+            text-align: center;
+        }
+        .container h1 {
+            margin: auto;
+            font-size: 40px;
+            transition-duration: 1s;
+            transition-timing-function: ease-in-out;
+            font-weight: 200;
+        }
+        .container h2 {
+            margin: auto;
+            font-size: 30px;
+            transition-duration: 1s;
+            transition-timing-function: ease-in-out;
+            font-weight: 200;
+        }
+        .links {
+            padding: 20px 0;
+            position: relative;
+            z-index: 2;
+        }
+        .links input {
+            outline: 0;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.2);
+            width: 250px;
+            border-radius: 3px;
+            padding: 10px 15px;
+            margin: 0 auto 10px auto;
+            display: block;
+            text-align: center;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 20px;
+            font-weight: 200;
+            color: white;
+            transition-duration: 0.25s;
+        }
+        .links input:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        .links input:active {
+            background-color: white;
+            width: 300px;
+            color: #53e3a6;
+        }
+
+        #BIBO {
+            position: absolute;
+            width: 450px;
+            left: 560px;
+            top:320px;
+        }
+
+    </style>
+    
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <h1>Welcome to EMERSERVICE</h1>
+            <h2>Faster aid, More life rescue</h2>
+            
+            <div class="links">
+                <input type="button" id="login-button" value="EMER ambulance" onclick="location.href='http://127.0.0.1:8000/user_input'";>
+                <input type="button" id="login-button" value="EMER hospital" onclick="location.href='http://127.0.0.1:8000/hos_input'";>
+            </div>
+        </div>
+        <img src="https://drive.google.com/uc?id=1Ha38bXqrXDAFtfjz6N2G-betaiZi2cdH" id="BIBO"></a>
+    </div>
+</body>
+</html>

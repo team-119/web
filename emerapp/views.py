@@ -9,29 +9,35 @@ from bs4 import BeautifulSoup as bs
 import threading
 from datetime import datetime
 
+def home(request):
+    return render(request, 'emerapp/home.html')
+    
 def user_input(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
-        if form.is_valid():
-            patient_id = form.save()
+        if form.is_valid(): #유효성 검사
+            patient_id = form.save() #여기에 저장 
             return redirect('/user_output/{}'.format(patient_id))
         else:
-            return HttpResponse("failed")
+            print(form.errors)
+            return HttpResponse("failed") #유효성 검사 실패
     else:
-        form = PatientForm()
-    return render(request, 'emerapp/user_input.html', {'form': form})
+        form = PatientForm() #post 요청 안 들어옴 
+    return render(request, 'emerapp/user_input.html', {'form': form}) #유저인풋.html 소환 
 
 def hos_input(request):
+    patients = Patient.objects.all()
     if request.method == 'POST':
         form = PatientForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponse("successfully saved")
+            #return HttpResponse("successfully saved")
         else:
+            print(form.errors)
             return HttpResponse("failed")
     else:
         form = PatientForm()
-    return render(request, 'emerapp/hos_input.html', {'form': form})
+    return render(request, 'emerapp/hos_input.html', {'form': form, 'patients': patients})
 
 def user_output(request, patient_id):
     url = "http://portal.nemc.or.kr/medi_info/dashboards/dash_total_emer_org_popup_for_egen.do?&juso=&lon=&lat=&con=on&emogloca=21&emogdstr=2138&asort=A&asort=C&asort=D&rltmCd=O001&rltmCd=O002&rltmCd=O003&rltmCd=O004&rltmCd=O048&rltmCd=O049&rltmCd=O046&rltmCd=O047&rltmCd=O005&rltmCd=O019&rltmCd=O010&rltmCd=O020&rltmCd=O017&rltmCd=O006&rltmCd=O007&rltmCd=O009&rltmCd=O015&rltmCd=O011&rltmCd=O012&rltmCd=O016&rltmCd=O008&rltmCd=O014&rltmCd=O013&rltmCd=O018&rltmCd=O038&rltmCd=O025&rltmCd=O021&rltmCd=O024&rltmCd=O022&rltmCd=O023&rltmCd=O026&rltmCd=O036&rltmCd=O030&rltmCd=O031&rltmCd=O032&rltmCd=O033&rltmCd=O034&rltmCd=O035&rltmCd=O037&rltmCd=O027&rltmCd=O028&rltmCd=O029&svdssCd=Y0010&svdssCd=Y0020&svdssCd=Y0031&svdssCd=Y0032&svdssCd=Y0041&svdssCd=Y0042&svdssCd=Y0051&svdssCd=Y0052&svdssCd=Y0060&svdssCd=Y0070&svdssCd=Y0131&svdssCd=Y0132&svdssCd=Y0081&svdssCd=Y0082&svdssCd=Y0091&svdssCd=Y0092&svdssCd=Y0111&svdssCd=Y0112&svdssCd=Y0113&svdssCd=Y0160&svdssCd=Y0141&svdssCd=Y0142&svdssCd=Y0171&svdssCd=Y0172&svdssCd=Y0150&svdssCd=Y0120&svdssCd=Y0100&afterSearch=map&theme=BLACK&refreshTime=60&spreadAllMsg=allClose"
@@ -53,6 +59,7 @@ def user_output(request, patient_id):
     sungmo_sur = [-1] #병원별 수술 가능여부(1번째 칸부터 수술1)
     chu_sur = [-1]
     t0 = [] #도착 시간 리스트
+    tbed_sung =[]
     
     #정렬 함수 정의
     def qsort(a):
