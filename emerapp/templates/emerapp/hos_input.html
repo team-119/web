@@ -126,9 +126,8 @@
                 $("#btn_select")
                     .click(
                         function(e) {
-                            e.preventDefault();
-                            var selectHospital = $("#selectHospital").val();
-                            $("#HOS").val(selectHospital);
+                            var selectHospital = $("#selectHospital").val()
+                            $("#HOS").val(selectHospital)
 
                             var now = new Date(); // 현재시간 정보로딩 
                             var nowHour = now.getHours(); //현재시
@@ -138,8 +137,6 @@
 
                             $("#ETE"+selectHospital).val("0");
                             $("#ETA"+selectHospital).val(ETA);
-                            $("#emerForm").submit();
-                            // db 데이터 가져오는 함수 추가
 
                         }); // .click [E]
 
@@ -162,7 +159,7 @@
                         <option value="2">[기관]의료법인영동의료재단의정부백병원</option>
                         <option value="3">[기관]추병원</option>
                     </select>
-                    <button id="btn_select">병원설정</button>
+                    <button id="hos_select">병원설정</button>
                 </span>
                 <span id="clock"></span></h2>
             </header>
