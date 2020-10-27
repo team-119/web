@@ -42,7 +42,7 @@
             position: relative;
         }
         section{
-            background-color: rgb(192, 219, 192);
+            background-color: rgb(239, 230, 228);
             width: 52%;
             height: 480px;
             position: relative;
@@ -74,25 +74,25 @@
             margin: 1%;
             font-weight: bold;
             font-size: 1.8rem;
-            color:rgb(90, 88, 86);
+            color:#253355;
             }
         h1 { font-size: 4rem; }
         h2 { font-size: 3rem; }
         td { font-size: 1rem; }
         .tableboxTitle { margin-left: 4%; margin-top: 1.5%; font-size: 1.3rem;}
-        .diffColor_a1 { background-color: rgb(255, 160, 115); }
-        .diffColor_a2 { background-color: rgb(250, 224, 197); }
-        .diffColor_b1 { background-color: rgb(217, 232, 245); }
-        .diffColor_b2 { background-color: rgb(145, 192, 212); }
-        .diffColor
+        .diffColor_a1 { background-color: rgb(199, 182, 188); }
+        .diffColor_a2 { background-color: rgb(228, 205, 203); }
+        .diffColor_b1 { background-color: rgb(223, 232, 232); }
+        .diffColor_b2 { background-color: rgb(189, 200, 205); }
 
         .tablebox { margin: auto; width: 95%; }
 
-        .checked { background-color: rgb(92, 90, 90); color: white}
+        .checked { background-color: #1f273a; color: white}
 
         .button{
             margin-left: 3%;
             margin-top: 2%;
+            margin-bottom: 5%;
             padding: 10px 50px 8px 50px;
             color: white;
             font-family: arial;
@@ -100,14 +100,14 @@
             letter-spacing: 1px;
             text-transform: uppercase;
             text-align: center;
-            background: rgb(148, 148, 148);
+            background: #4c616d;
             border-radius: 10px;
             transition: all 0.1s ease-in-out;
             cursor: pointer;
         }
 
         .button:hover{
-            background: #7c7c7c;
+            background: #334047;
         }
 
         .button:active{
@@ -119,7 +119,7 @@
             width: 0%;
             margin: auto;
             height: 20px;
-            background-color: rgb(218, 57, 71);
+            background-color: rgb(151, 37, 35);
             float: left;
         }
         #egenlink{
@@ -127,8 +127,8 @@
             text-decoration: none;
             border-radius: 5px;
             font-size: 1.6rem;
-            color: rgb(24, 23, 23);
-            background-color: rgb(168, 192, 236);
+            color: rgb(255, 255, 255);
+            background-color: rgb(119, 143, 156);
             padding: 10px;
         }
         
@@ -353,8 +353,8 @@
 </head>
 <body onload="Main()">
     <header>
-        <h1 style="text-align: center; color: #9494ff;">EMERSERVICE <span style="color: #c7c7ff; font-size: 3.8rem;">AMBULANCE</span></h1>
-        <h2 style="text-align: center; color: #6e7380;">응급환자정보입력<div id="clock"></div></h2>
+        <h1 style="text-align: center; color: #9bb6b9;">EMERSERVICE <span style="color: #4c616d; font-size: 3.8rem;">AMBULANCE</span></h1>
+        <h2 style="text-align: center; color: #253355;">응급환자정보입력<div id="clock"></div></h2>
     </header>
 
     <section id="check_area">
@@ -385,20 +385,20 @@
                             
                             <tr class="diffColor_a1">
         
-                                <td style="background-color: rgb(175, 53, 63); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer1" name="emer" value="1"
+                                <td style="background-color: rgb(211, 41, 55); color: white; padding: 0.5rem;">
+                                    <input type="radio" id="label_emer1" name="emer" value="3"
                                     style="margin-left: 1rem">
                                     <label for="label_emer1">&nbsp;긴급</label>
                                 </td>                 
                                                                                                                 
-                                <td style="background-color: rgb(201, 131, 27); color: white; padding: 0.5rem;">
+                                <td style="background-color: rgb(241, 159, 36); color: white; padding: 0.5rem;">
                                     <input type="radio" id="label_emer2" name="emer" value="2">
                                     <label for="label_emer2">&nbsp;응급</label>
                                 </td>
                                 
                                 
-                                <td style="background-color: rgb(78, 116, 47); color: white; padding: 0.5rem;">
-                                    <input type="radio" id="label_emer3" name="emer" value="3" checked="checked">
+                                <td style="background-color: rgb(73, 138, 20); color: white; padding: 0.5rem;">
+                                    <input type="radio" id="label_emer3" name="emer" value="1" checked="checked">
                                     <label for="label_emer3">&nbsp;비응급</label>
                                 </td>
                                                                                                                                                                                  
@@ -647,7 +647,7 @@
     </aside>
     
     <footer>
-        <a href=http://portal.nemc.or.kr/medi_info/dashboards/dash_total_emer_org_popup_for_egen.do id="egenlink">EGEN 종합상황판</a>
+        <a href=http://portal.nemc.or.kr/medi_info/dashboards/dash_total_emer_org_popup_for_egen.do id="egenlink" target="_blank">EGEN 종합상황판</a>
     </footer>
 
 </body>
