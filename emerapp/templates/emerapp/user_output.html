@@ -1,61 +1,146 @@
-<!doctype html>
-<html>
-<head>
-<meta charset=”UTF-8”>
-	<title> EMERGENCY SERVICE </title>
-	<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
-	<style>
-	body {background-color: #EAFAEA; font-family: 'Nanum Gothic', sans-serif;} <!--배경-->
-	h1 {font-weight: bold; text-indent: 25px;}
-	span {color: #665C00}
-	</style>
-	<script type="text/javascript">
-		function printTime() {
-			var clock = document.getElementById("clock");
-			<!--id값인 <span>태그를 변수clock에 저장-->
-			var now = new Date(); 
-			<!--객체 생성-->
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <title>AMBULANCE output</title>
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300">
 
-			clock.innerHTML = 
-				<!--태그 내부에 태그 설정-->
-			now.getFullYear() + "년 " + 
-			(now.getMonth() + 1) + "월 " +
-			now.getDate() + "일 " + 
-			now.getHours() + "시 " + 
-			now.getMinutes() + "분 " + 
-			now.getSeconds() + "초";
-			setTimeout("printTime()", 1000); 
-			<!--1초마다 printTime()함수 호출-->
-		}
-		window.onload = function() { <!--html 로딩시 콜백함수 호출-->
-            printTime();
-		}
-	</script>
- </head>
- <br>
-  <body>
- <div>
-      <span id="clock"></span>
-<br>
-<br>
-  <table border="1" width="600" height="300">
+        <style>
+            @font-face {
+            font-family: 'Source Sans Pro';
+            font-style: normal;
+            font-weight: 200;
+            src: local('Source Sans Pro ExtraLight'), local('SourceSansPro-ExtraLight'), url(https://fonts.gstatic.com/s/sourcesanspro/v14/6xKydSBYKcSV-LCoeQqfX1RYOo3i94_wlxdr.ttf) format('truetype');
+            }
+            @font-face {
+                font-family: 'Source Sans Pro';
+                font-style: normal;
+                font-weight: 300;
+                src: local('Source Sans Pro Light'), local('SourceSansPro-Light'), url(https://fonts.gstatic.com/s/sourcesanspro/v14/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdr.ttf) format('truetype');
+            }
 
-    <th> </th>
-    <th>병원</th>
-    <th>예상 시간</th>
-    <tr align="center">
-        <td>1순위</td>
-        <td>{{ h1 }}</td>
-        <td>{{ n1.hour }} : {{ n1.minute }}</td>
-    </tr>
-    <tr align="center">
-        <td>2순위</td>
-        <td>{{ h2 }}</td>
-        <td>{{ n2.hour }} : {{ n2.minute }}</td>
-    </tr>
-    <tr align="center">
-        <td>3순위</td>
-        <td>{{ h3 }}</td>
-        <td>{{ n3.hour }} : {{ n3.minute }}</td>
-    </tr>
-  </table>
+            html { font-size: 10px; margin: 0px;}
+            header {
+                background-color: white;
+                width: 100%;
+                height: 120px;
+                line-height: 20px;
+                padding-top: 10px;
+                margin-bottom: 10px;
+                position: static;
+            }
+            nav {
+                background-color: rgb(187, 198, 212);
+                width: 100%;
+                vertical-align: middle;
+                height: 60px;
+                line-height: 10px;
+                position: relative;
+            }
+            section {
+                background-color: rgb(206, 206, 206);
+                width: 48%;
+                height: 450px;
+                position: relative;
+                float: left;
+                overflow-y: auto;
+            }
+            aside {
+                background-color: rgb(188, 232, 243);
+                padding: 0;
+                width: 52%;
+                height: 450px;
+                position: relative;
+                float: right;
+                overflow-y: auto;
+            }
+            footer {
+                background-color: lightgrey;
+                width: 100%;
+                height: 150px;
+                line-height: 10px;
+                position: relative;
+                clear: both;
+            }
+            header,nav,footer{text-align: center;}
+
+            #clock { text-align: right; margin: 1%; font-weight: bold; font-size: 1.5rem; color:rgb(63, 61, 59);}
+
+            h1 { font-size: 4rem; }
+            h2 { font-size: 3rem; }
+            td { font-size: 1rem; }
+            .tableboxTitle { margin-left: 0.5%; margin-top: 0%; margin-bottom: 0%; padding: 1rem; font-size: 1.5rem;}
+            .diffColor1 { background-color: rgb(168, 192, 236); }
+            .diffColor2 { background-color: rgb(194, 206, 228); }
+
+            .tablebox { margin: 1%; font-size: 1.3rem; width: 90%; }
+            .button { margin-left: 1%; margin-top: 3%; background-color: grey; color: white; }
+        </style>
+
+        <script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://apis.openapi.sk.com/tmap/jsv2?version=2&appKey=l7xxf6a3bebd3c3b4d69bdbd799bc288845d"></script>
+        <script type="text/javascript">
+
+            var map;
+            var marker_s;
+            var marker_e = [];
+            var my = {lat: 37.9504963, lon: 127.02928809999999}; //내좌표
+            var s = {name: "[권역][외상]가톨릭대학교의정부성모병원", lat: 37.758568, lon: 127.077705};
+            var u = {name: "[기관]경기도의료원의정부병원", lat: 37.741181, lon: 127.042525};
+            var b = {name: "[기관]의료법인영동의료재단의정부백병원", lat: 37.745791, lon: 127.061916};
+            var c = {name: "[기관]추병원", lat: 37.750760, lon: 127.046260};
+            const hospital = [s, u, b, c];            
+
+            
+            function printTime() {
+                
+                var clock = document.getElementById("clock");   // 출력할 장소 선택
+                var currentDate = new Date();   // 현재시간
+                var calendar = currentDate.getFullYear() + "-" + (currentDate.getMonth()+1) + "-" + currentDate.getDate() // 현재 날짜
+
+                var currentHours = addZeros(currentDate.getHours(),2); 
+                var currentMinute = addZeros(currentDate.getMinutes() ,2);
+                var currentSeconds =  addZeros(currentDate.getSeconds(),2);
+
+                clock.innerHTML = calendar+" "+currentHours+":"+currentMinute+":"+currentSeconds; //날짜를 출력해 줌
+                
+                setTimeout("printTime()",1000); // 1초마다 printClock() 함수 호출
+            }   // printTime [E]
+
+            function addZeros(num, digit)   // 자릿수 맞춰주기
+            {
+               var zero = '';
+                num = num.toString();
+                if (num.length < digit){
+                   for (i = 0; i < digit - num.length; i++){
+                       zero += '0';
+                    }
+               }
+               return zero + num;
+            }   // addZeros [E]
+    
+            
+            function Main()
+            {
+                printTime();
+            }
+
+        </script>
+    </head>
+    <body onload="Main()">
+        <header>
+            <h1 style="text-align: center; color: #9494ff;"><a href="http://127.0.0.1:5501/user_input.html">EMERSERVICE</a><span style="color: #c7c7ff; font-size: 3.8rem;"> AMBULANCE</span></h1>
+            <h2 style="text-align: center; color: #6e7380;">추천응급실안내<div id="clock"></div></h2>
+        </header>
+
+
+        <section>
+
+        </section>
+
+        <aside>
+            
+        </aside>
+
+    </body>
+</html>

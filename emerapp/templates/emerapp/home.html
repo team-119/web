@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300">
     <title>EMERSERVICE main</title>
     <style>
@@ -89,15 +89,51 @@
         }
 
         #BIBO {
-            position: absolute;
             width: 450px;
-            left: 560px;
-            top:320px;
+            margin: 0 auto;
+        }
+        
+        body{
+            animation: fadein 2000ms ease-out;
+            -moz-animation: fadein 2000ms ease-out; /* Firefox */
+            -webkit-animation: fadein 2000ms ease-out; /* Safari and  Chrome */
+            -o-animation: fadein 2000ms ease-out; /* Opera */
+        }
+        @keyframes fadein {
+            from {opacity:0;}
+            to {opacity:1;}
+        }
+        @-moz-keyframes fadein { /* Firefox */
+            from {opacity:0;}
+            to {opacity:1;}
+        }
+        @-webkit-keyframes fadein { /* Safari and Chrome */
+            from {opacity:0;}
+            to {opacity:1;}
+        }
+        @-o-keyframes fadein { /* Opera */
+            from {opacity:0;}
+            to {opacity: 1;}
         }
 
     </style>
     
+    <script>
+        jQuery(function($) {
+            $("body").css("display", "none");
+            $("body").fadeIn(1000);
+            $("a.transition").click(function(event){
+                event.preventDefault();
+                linkLocation = this.href;
+            $("body").fadeOut(1000, redirectPage);
+            });
+            function redirectPage() {
+                window.location = linkLocation;
+            }
+        });
+    </script>
 </head>
+
 <body>
     <div class="wrapper">
         <div class="container">
@@ -108,8 +144,8 @@
                 <input type="button" id="login-button" value="EMER ambulance" onclick="location.href='http://127.0.0.1:8000/user_input'";>
                 <input type="button" id="login-button" value="EMER hospital" onclick="location.href='http://127.0.0.1:8000/hos_input'";>
             </div>
+            <img src="https://drive.google.com/uc?id=1Ha38bXqrXDAFtfjz6N2G-betaiZi2cdH" width=400 height=400 id="BIBO">
         </div>
-        <img src="https://drive.google.com/uc?id=1Ha38bXqrXDAFtfjz6N2G-betaiZi2cdH" id="BIBO"></a>
     </div>
 </body>
 </html>
