@@ -19,12 +19,14 @@
                 src: local('Source Sans Pro Light'), local('SourceSansPro-Light'), url(https://fonts.gstatic.com/s/sourcesanspro/v14/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdr.ttf) format('truetype');
             }
 
-            html { font-size: 10px; margin: 0px;}
+            html { font-size: 10px; margin: 0px; }
+            h1 { font-size: 4rem; }
+            h2 { font-size: 2.5rem; }
             header {
                 background-color: white;
                 width: 100%;
-                height: 120px;
-                line-height: 20px;
+                height: 150px;
+                line-height: 30px;
                 padding-top: 10px;
                 margin-bottom: 10px;
                 position: static;
@@ -39,20 +41,21 @@
             }
             section {
                 background-color: rgb(206, 206, 206);
-                width: 48%;
-                height: 450px;
+                width: 50%;
+                margin-left: 3%;
+                margin-right: 2.5%;
+                padding: 0;
+                height: 500px;
                 position: relative;
                 float: left;
-                overflow-y: auto;
             }
             aside {
                 background-color: rgb(188, 232, 243);
-                padding: 0;
-                width: 52%;
-                height: 450px;
+                width: 38%;
+                margin-right: 6.5%;
+                height: 500px;
                 position: relative;
                 float: right;
-                overflow-y: auto;
             }
             footer {
                 background-color: lightgrey;
@@ -64,34 +67,122 @@
             }
             header,nav,footer{text-align: center;}
 
-            #clock { text-align: right; margin: 1%; font-weight: bold; font-size: 1.5rem; color:rgb(63, 61, 59);}
+            .result_area {
+                background-color: #8497B0;
+                width: 100%;
+                height: 55%;
+                margin: 0;
+            }
+            .timebar_area {
+                width: 100%;
+                height: 45%;
+                margin: 0; 
+            }
 
-            h1 { font-size: 4rem; }
-            h2 { font-size: 3rem; }
-            td { font-size: 1rem; }
-            .tableboxTitle { margin-left: 0.5%; margin-top: 0%; margin-bottom: 0%; padding: 1rem; font-size: 1.5rem;}
-            .diffColor1 { background-color: rgb(168, 192, 236); }
-            .diffColor2 { background-color: rgb(194, 206, 228); }
 
-            .tablebox { margin: 1%; font-size: 1.3rem; width: 90%; }
-            .button { margin-left: 1%; margin-top: 3%; background-color: grey; color: white; }
+            #clock { 
+                float: right;
+                font-weight: bold;
+                font-size: 1.5rem;
+                color:rgb(63, 61, 59);
+                margin-top: 0%;
+                margin-right: 6.5%;
+                margin-left: 50%
+            }
+
+            #result_emer {
+                width: 10%;
+                background:rgb(188, 232, 243);
+                padding: 1rem;
+                margin-left: 33%;
+                border-radius:3px 3px 3px 3px;
+                position: relative;
+                float: left;
+            }
+            #result_oper {
+                width: 20%;
+                background:rgb(188, 232, 243);
+                padding: 1rem;
+                margin-right: 33%;
+                border-radius:3px 3px 3px 3px;
+                position: relative;
+                float: right;
+            }
+            #result_hos {
+                margin-top: 5%;
+                margin-left: 5%;
+                color: white;
+                background: wheat;
+                font-size: 2.5rem;
+                width: 50%;
+                height: 40%;
+                position: relative;
+                float: left;
+            }
+            #result_ete {
+                margin-top: 5%;
+                margin-right: 5%;
+                color: white;
+                background:rgb(180, 95, 95);
+                font-size: 6.5rem;
+                font-weight: bold;
+                text-align: right;
+                width: 35%;
+                height: 50%;
+                position: relative;
+                float: right;
+                
+            }
+
+            #timebar1 {
+                background: #203864;
+                float: bottom;
+                font-size: 2rem;
+                text-align: left;
+                margin: 0;
+                margin-top: 8%;
+                width: 70%;
+                height: 27%;
+            }
+            #timebar2 {
+                background: #203864;
+                float: bottom;
+                font-size: 2rem;
+                text-align: left;
+                margin: 0;
+                margin-top: 5%;
+                width: 70%;
+                height: 27%;
+            }
+
+
+
         </style>
 
-        <script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script   src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script src="https://apis.openapi.sk.com/tmap/jsv2?version=2&appKey=l7xxf6a3bebd3c3b4d69bdbd799bc288845d"></script>
         <script type="text/javascript">
 
             var map;
-            var marker_s;
-            var marker_e = [];
-            var my = {lat: 37.9504963, lon: 127.02928809999999}; //내좌표
-            var s = {name: "[권역][외상]가톨릭대학교의정부성모병원", lat: 37.758568, lon: 127.077705};
-            var u = {name: "[기관]경기도의료원의정부병원", lat: 37.741181, lon: 127.042525};
-            var b = {name: "[기관]의료법인영동의료재단의정부백병원", lat: 37.745791, lon: 127.061916};
-            var c = {name: "[기관]추병원", lat: 37.750760, lon: 127.046260};
-            const hospital = [s, u, b, c];            
+            var markerInfo;
+            var marker_s, marker_e, marker_p;
 
-            
+            //경로그림정보
+         var drawInfoArr = [];
+      
+         var chktraffic = [];
+         var resultdrawArr = [];
+            var resultMarkerArr = [];
+
+            var my = {lat: 37.9504963, lon: 127.02928809999999}; //내좌표
+            var s = {name: "[권역][외상]<br/>가톨릭대학교<br/>의정부성모병원", lat: 37.758568, lon: 127.077705};
+            var u = {name: "[기관]<br/>경기도의료원<br/>의정부병원", lat: 37.741181, lon: 127.042525};
+            var b = {name: "[기관]<br/>의료법인영동의료재단<br/>의정부백병원", lat: 37.745791, lon: 127.061916};
+            var c = {name: "[기관]<br/>추병원", lat: 37.750760, lon: 127.046260};
+            const hospital = [s, u, b, c];            
+            var selectHospital=2;
+
+
             function printTime() {
                 
                 var clock = document.getElementById("clock");   // 출력할 장소 선택
@@ -119,27 +210,511 @@
                return zero + num;
             }   // addZeros [E]
     
+
+
+            function getLocation()  // 좌표 로딩, 지도중심변경, 현위치마커
+         {  
+            if(navigator.geolocation)
+            {
+               navigator.geolocation.getCurrentPosition(function(position)
+               {
+                  my.lat = position.coords.latitude;
+                  my.lon = position.coords.longitude;
+                  console.log("현재위치 " + my.lat + " " + my.lon);
+                  
+                  // 지도중심 변경
+                  map.setCenter(new Tmapv2.LatLng(my.lat, my.lon));
+                  console.log("지도중심 현위치로 변경")
+
+                  // 현위치마커 변경
+                  marker_s.setPosition(new Tmapv2.LatLng(my.lat, my.lon));
+                  console.log("마커좌표 현위치로 변경")
+
+               }); // getCurrentPosition [E]
+
+            } // if(navigator.geolocation) [E]
+
+         }   // getLocation [E]
+
+
+
+            function api() // api 경로계산
+            {
+                resettingMap();
+                //JSON TYPE EDIT [S]
+                $.ajax({
+                    type : "POST",
+                    url : "https://apis.openapi.sk.com/tmap/routes?version=2&format=json&callback=result",
+                    async : false,
+                    data : {
+                        "appKey" : "l7xx87a72efd23ad4f03b86093f5f91895a1",
+                        "startX" : my.lon,
+                        "startY" : my.lat,
+                        "endX" : hospital[selectHospital].lon,
+                        "endY" : hospital[selectHospital].lat,
+                        "reqCoordType" : "WGS84GEO",
+                        "resCoordType" : "EPSG3857",
+                        "searchOption" : 2,
+                        "trafficInfo" : "Y"
+                    },
+                    success : function(response) {
+
+                        console.log("api 로드됨")
+
+                        var resultData = response.features;
+
+                        var tDistance = "총 거리 : "
+                                + (resultData[0].properties.totalDistance / 1000).toFixed(1) + "km,";
+                        var tTime = " 총 시간 : "
+                                + (resultData[0].properties.totalTime / 60).toFixed(0) + "분";
+                        
+                        $("#result").text(tDistance + tTime);   // 경로 정보 출력
+
+                        // 교통정보 포함 경로출력
+                            for (var i in resultData)   //for문 [S]
+                            {
+                                var geometry = resultData[i].geometry;
+                                var properties = resultData[i].properties;
+
+                                if (geometry.type == "LineString") {
+                                    //교통 정보도 담음
+                                    chktraffic.
+                                            push(geometry.traffic);
+                                    
+                                    var sectionInfos = [];
+                                    var trafficArr = geometry.traffic;
+
+                                    for ( var j in geometry.coordinates) {
+                                        // 경로들의 결과값들을 포인트 객체로 변환 
+                                        var latlng = new Tmapv2.Point(
+                                                geometry.coordinates[j][0],
+                                                geometry.coordinates[j][1]);
+                                        // 포인트 객체를 받아 좌표값으로 변환
+                                        var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlng);
+
+                                        sectionInfos
+                                                .push(convertPoint);
+                                    }
+
+                                    drawLine(sectionInfos, trafficArr);
+                                }   // if [E]
+                                else {
+
+                                    var markerImg = "";
+                                    var pType = "";
+
+                                    if (properties.pointType == "S") { //출발지 마커
+                                        markerImg = "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_r_m_s.png";
+                                        pType = "S";
+                                    } else if (properties.pointType == "E") { //도착지 마커
+                                        markerImg = "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_r_m_e.png";
+                                        pType = "E";
+                                    } else { //각 포인트 마커
+                                        markerImg = "http://topopen.tmap.co.kr/imgs/point.png";
+                                        pType = "P"
+                                    }   // else [E]
+
+                                    // 경로들의 결과값들을 포인트 객체로 변환 
+                                    var latlon = new Tmapv2.Point(
+                                            geometry.coordinates[0],
+                                            geometry.coordinates[1]);
+                                    // 포인트 객체를 받아 좌표값으로 다시 변환
+                                    var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlon);
+
+                                    var routeInfoObj = {
+                                        markerImage : markerImg,
+                                        lng : convertPoint._lng,
+                                        lat : convertPoint._lat,
+                                        pointType : pType
+                                    };
+                                    // 마커 추가
+                                    addMarkers(routeInfoObj);
+                                }
+                            }   //for문 [E]
+                    },
+                    error : function(request, status, error) {
+                        console.log("code:"
+                                + request.status + 
+                                + "message:"
+                                + request.responseText
+                                +  + "error:" + error);
+                    }
+                });
+                //JSON TYPE EDIT [E]
+
+            }
+
+         function addMarkers(infoObj)   // 마커 생성하기
+         {
+            var size = new Tmapv2.Size(24, 38);
+      
+            if (infoObj.pointType == "P")
+            {
+               size = new Tmapv2.Size(8, 8);
+            }
+      
+            marker_p = new Tmapv2.Marker({
+               position : new Tmapv2.LatLng(infoObj.lat, infoObj.lng),
+               icon : infoObj.markerImage,
+               iconSize : size,
+               map : map
+            });
+      
+            resultMarkerArr.push(marker_p);
+         }
+      
+         function drawLine(arrPoint, traffic)   // 라인 그리기
+         {
+            var polyline_;
+      
+            if (chktraffic.length != 0) {
+      
+               // 교통정보 혼잡도 체크
+               // strokeColor는 교통상황에 따라 변화
+               // traffic :  0-정보없음, 1-원활, 2-서행, 3-지체, 4-정체  (black, green, yellow, orange, red)
+      
+               var lineColor = "";
+      
+               if (traffic != "0") {
+                  if (traffic.length == 0) { //교통정보 없음
+                     lineColor = "#06050D";
+                     //라인그리기[S]
+                     polyline_ = new Tmapv2.Polyline({
+                        path : arrPoint,
+                        strokeColor : lineColor,
+                        strokeWeight : 6,
+                        map : map
+                     });
+                     resultdrawArr.push(polyline_);
+                     //라인그리기[E]
+                  }
+                  else {   //교통정보 있음      
+
+                     if (traffic[0][0] != 0) { //교통정보 시작인덱스가 0이 아닌 경우
+                        var trafficObject = "";
+                        var tInfo = [];
+      
+                        for (var z = 0; z < traffic.length; z++) {
+                           trafficObject = {
+                              "startIndex" : traffic[z][0],
+                              "endIndex" : traffic[z][1],
+                              "trafficIndex" : traffic[z][2],
+                           };
+                           tInfo.push(trafficObject)
+                        }
+      
+                        var noInfomationPoint = [];
+      
+                        for (var p = 0; p < tInfo[0].startIndex; p++) {
+                           noInfomationPoint.push(arrPoint[p]);
+                        }
+      
+                        //라인그리기[S]
+                        polyline_ = new Tmapv2.Polyline({
+                           path : noInfomationPoint,
+                           strokeColor : "#06050D",
+                           strokeWeight : 6,
+                           map : map
+                        });
+                        //라인그리기[E]
+                        resultdrawArr.push(polyline_);
+      
+                        for (var x = 0; x < tInfo.length; x++) {
+                           var sectionPoint = []; // 구간선언
+      
+                           for (var y = tInfo[x].startIndex; y <= tInfo[x].endIndex; y++) {
+                              sectionPoint.push(arrPoint[y]);
+                           }
+      
+                           if (tInfo[x].trafficIndex == 0) {
+                              lineColor = "#06050D";
+                           } else if (tInfo[x].trafficIndex == 1) {
+                              lineColor = "#61AB25";
+                           } else if (tInfo[x].trafficIndex == 2) {
+                              lineColor = "#FFFF00";
+                           } else if (tInfo[x].trafficIndex == 3) {
+                              lineColor = "#E87506";
+                           } else if (tInfo[x].trafficIndex == 4) {
+                              lineColor = "#D61125";
+                           }
+      
+                           //라인그리기[S]
+                           polyline_ = new Tmapv2.Polyline({
+                              path : sectionPoint,
+                              strokeColor : lineColor,
+                              strokeWeight : 6,
+                              map : map
+                           });
+                           //라인그리기[E]
+                           resultdrawArr.push(polyline_);
+                        }
+                     }
+                     else { // 교통정보 시작인덱스가 0인 경우
+      
+                        var trafficObject = "";
+                        var tInfo = [];
+      
+                        for (var z = 0; z < traffic.length; z++) {
+                           trafficObject = {
+                              "startIndex" : traffic[z][0],
+                              "endIndex" : traffic[z][1],
+                              "trafficIndex" : traffic[z][2],
+                              };
+                           tInfo.push(trafficObject)
+                        }
+      
+                        for (var x = 0; x < tInfo.length; x++) {
+                           var sectionPoint = []; //구간선언
+      
+                           for (var y = tInfo[x].startIndex; y <= tInfo[x].endIndex; y++) {
+                              sectionPoint.push(arrPoint[y]);
+                           }
+      
+                           if (tInfo[x].trafficIndex == 0) {
+                              lineColor = "#06050D";
+                           } else if (tInfo[x].trafficIndex == 1) {
+                              lineColor = "#61AB25";
+                           } else if (tInfo[x].trafficIndex == 2) {
+                              lineColor = "#FFFF00";
+                           } else if (tInfo[x].trafficIndex == 3) {
+                              lineColor = "#E87506";
+                           } else if (tInfo[x].trafficIndex == 4) {
+                              lineColor = "#D61125";
+                           }
+      
+                           //라인그리기[S]
+                           polyline_ = new Tmapv2.Polyline({
+                                          path : sectionPoint,
+                                          strokeColor : lineColor,
+                                          strokeWeight : 6,
+                                          map : map
+                                       });
+                           //라인그리기[E]
+                           resultdrawArr.push(polyline_);
+                        } // for [E]
+                     } // 교통정보 시작인덱스가 0인지 아닌지 [E]
+                  } // 교통정보있음 [E]
+               }  // traffic 0 아닐때 [E]
+               
+            } // chktraffic.length 가 0아닐때
+      
+         }
+      
+         function resettingMap() //초기화 기능
+         {
+            //기존마커는 삭제
+            marker_s.setMap(null);
+            marker_e.setMap(null);
+      
+            if (resultMarkerArr.length > 0) {
+               for (var i = 0; i < resultMarkerArr.length; i++) {
+                  resultMarkerArr[i].setMap(null);
+               }
+            }
+      
+            if (resultdrawArr.length > 0) {
+               for (var i = 0; i < resultdrawArr.length; i++) {
+                  resultdrawArr[i].setMap(null);
+               }
+            }
+      
+            chktraffic = [];
+            drawInfoArr = [];
+            resultMarkerArr = [];
+            resultdrawArr = [];
+         }
             
+         function Map_nav() {
+
+            // 1. 지도 띄우기
+            map = new Tmapv2.Map("map_div", {
+               center : new Tmapv2.LatLng(my.lat, my.lon),
+               width : "100%",
+               height : "100%",
+               zoom : 13,
+               zoomControl : true,
+               scrollwheel : true
+            });
+      
+            // 2. 초기 시작, 도착 심볼찍기
+            marker_s = new Tmapv2.Marker(
+                  {
+                     position : new Tmapv2.LatLng(my.lat, my.lon),
+                     icon : "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_r_m_s.png",
+                     iconSize : new Tmapv2.Size(24, 38),
+                     map : map
+                        });
+                        
+            marker_e = new Tmapv2.Marker(
+                  {
+                     position : new Tmapv2.LatLng(hospital[selectHospital].lat, hospital[selectHospital].lon),
+                     icon : "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_r_m_e.png",
+                     iconSize : new Tmapv2.Size(24, 38),
+                     map : map
+                  });
+
+            //3. 현재 위치 좌표 로딩 및 초기화
+            getLocation();
+
+            // 4. 경로탐색 API 사용요청
+            setTimeout("api()",300);
+
+         }   // function Map_nav() [E]
+
+
             function Main()
             {
+                //selectHospital = $("#selectHospital").val();
+                document.getElementById("result_hos").innerHTML
+                    = hospital[selectHospital].name;
+
+                document.getElementById("result_emer").innerHTML
+                = $("#emer").val()
+
+                document.getElementById("result_oper").innerHTML
+                = $("#oper").val();
+
+
+
                 printTime();
+                //Map_nav();
+
+                if($("#show").val() == 1 )
+                {
+                alert("지역 내 수술가능 병원이 없어 가장 가까운 병원으로 안내합니다");
+                }
             }
 
         </script>
     </head>
+    
     <body onload="Main()">
+
+        {% if result["hos"] == "0" %}
+            <input type=hidden id="selectHospital" value=0>
+        {% elif result["hos"] == "1" %}
+            <input type=hidden id="selectHospital" value=1>
+        {% elif result["hos"] == "2" %}
+            <input type=hidden id="selectHospital" value=2>
+        {% elif result["hos"] == "3" %}
+            <input type=hidden id="selectHospital" value=3>
+        {% endif %}
+
+        {% if result["emer"] == 1 %}
+            <input type=hidden id="emer" value="긴급">
+        {% if result["emer"] == 2 %}
+            <input type=hidden id="emer" value="응급">
+        {% if result["emer"] == 3 %}
+            <input type=hidden id="emer" value="비응급">
+        {% endif %}
+
+        {% if result["oper"] == 0 %}
+            <input type=hidden id="oper" value="수술 안함">
+        {% elif result["oper"] == 1 %}
+            <input type=hidden id="oper" value="[재관류중재술] 심근경색">
+        {% elif result["oper"] == 2 %}
+            <input type=hidden id="oper" value="[재관류중재술] 뇌경색">
+        {% elif result["oper"] == 3 %}
+            <input type=hidden id="oper" value="[뇌출혈수술] 거미막하출혈">
+        {% elif result["oper"] == 4 %}
+            <input type=hidden id="oper" value="[뇌출혈수술] 거미막하출혈외">
+        {% elif result["oper"] == 5 %}
+            <input type=hidden id="oper" value="[대동맥응급] 흉부">
+        {% elif result["oper"] == 6 %}
+            <input type=hidden id="oper" value="[대동맥응급] 복부">
+        {% elif result["oper"] == 7 %}
+            <input type=hidden id="oper" value="[담낭담관질환] 담낭질환">
+        {% elif result["oper"] == 8 %}
+            <input type=hidden id="oper" value="[담낭담관질환] 담도포함질환">
+        {% elif result["oper"] == 9 %}
+            <input type=hidden id="oper" value="[복부응급수술] 비외상">
+        {% elif result["oper"] == 10 %}
+            <input type=hidden id="oper" value="[장중첩/폐색] 영유아">
+        {% elif result["oper"] == 11 %}
+            <input type=hidden id="oper" value="[사지접합의수술] 수족지접합">
+        {% elif result["oper"] == 12 %}
+            <input type=hidden id="oper" value="[사지접합의수술] 수족지접합외">
+        {% elif result["oper"] == 13 %}
+            <input type=hidden id="oper" value="[위장관응급내시경] 성인">
+        {% elif result["oper"] == 14 %}
+            <input type=hidden id="oper" value="[위장관응급내시경] 영유아">
+        {% elif result["oper"] == 15 %}
+            <input type=hidden id="oper" value="[기관지응급내시경] 성인">
+        {% elif result["oper"] == 16 %}
+            <input type=hidden id="oper" value="[기관지응급내시경] 영유아">
+        {% elif result["oper"] == 17 %}
+            <input type=hidden id="oper" value="[산부인과응급] 분만">
+        {% elif result["oper"] == 18 %}
+            <input type=hidden id="oper" value="[산부인과응급] 산과수술">
+        {% elif result["oper"] == 19 %}
+            <input type=hidden id="oper" value="[산부인과응급] 부인과수술">
+        {% elif result["oper"] == 20 %}
+            <input type=hidden id="oper" value="[안과적응급수술]">
+        {% elif result["oper"] == 21 %}
+            <input type=hidden id="oper" value="[응급투석] HD">
+        {% elif result["oper"] == 22 %}
+            <input type=hidden id="oper" value="[응급투석] CRRT">
+        {% elif result["oper"] == 23 %}
+            <input type=hidden id="oper" value="[영상의학혈관중재] 성인">
+        {% elif result["oper"] == 24 %}
+            <input type=hidden id="oper" value="[영상의학혈관중재] 영유아">
+        {% elif result["oper"] == 25 %}
+            <input type=hidden id="oper" value="[정신과적 응급] 폐쇄병동입원">
+        {% elif result["oper"] == 26 %}
+            <input type=hidden id="oper" value="[중증화상]">
+        {% elif result["oper"] == 27 %}
+            <input type=hidden id="oper" value="[저출생체중아]">
+        {% endif %}
+    
+        {% if result["poss"] == 0 %}
+            <input type="hidden" id="show" value=0>
+        {% elif result["poss"] == 1 %}
+            <input type="hidden" id="show" value=1>
+        {% endif %}
+        
+
         <header>
-            <h1 style="text-align: center; color: #9494ff;"><a href="http://127.0.0.1:5501/user_input.html">EMERSERVICE</a><span style="color: #c7c7ff; font-size: 3.8rem;"> AMBULANCE</span></h1>
-            <h2 style="text-align: center; color: #6e7380;">추천응급실안내<div id="clock"></div></h2>
+            <h1 style="text-align: center; color: #9494ff;">EMERSERVICE <span style="color: #c7c7ff; font-size: 3.8rem;">AMBULANCE</span></h1>
+            <h2 style="text-align: center; color: #6e7380;">
+                <div id="result_emer">
+                    응급도
+                </div> 
+                <div id="result_oper">
+                    중증응급질환정보
+                </div>
+                <div id="clock"></div>
+            </h2>
         </header>
 
-
         <section>
-
+        <div id="map_div"></div>
         </section>
 
         <aside>
-            
+            <div class="result_area">
+                <div id="result_hos">
+                    선택한 병원
+                </div>
+                <div id="result_ete">
+                    {% if result[hos] == "0" %}
+                    {{result["ETE_S"]}}분
+                    {% if result[hos] == "1" %}
+                    {{result["ETE_U"]}}분
+                    {% if result[hos] == "2" %}
+                    {{result["ETE_B"]}}분
+                    {% if result[hos] == "3" %}
+                    {{result["ETE_C"]}}분
+                </div>   
+                
+            </div>
+            <div class="timebar_area">
+                <div id="timebar1">
+                    이동소요시간
+                </div>
+                <div id="timebar2">
+                    의료서비스남은시간
+                </div>
+            </div>
         </aside>
 
     </body>

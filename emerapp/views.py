@@ -35,14 +35,13 @@ def hos_input(request):
         patients = Patient.objects.filter(hos = hos)
         form = PatientForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('/hos_input?hos={}'.format(hos))
+            patient_id = form.save()
+            return redirect('/user_output/{}'.format(patient_id))
         else:
             print(form.errors)
             return HttpResponse("failed")
     else:
         form = PatientForm()
-   
     return render(request, 'emerapp/hos_input.html', {'form': form, 'patients': patients})
  
     
@@ -70,18 +69,8 @@ def user_output(request, patient_id):
     chu_sur = [-1]
     #t0 = [Patient.objects.filter(id = patient_id).values('ETA_S')[0]['ETA_S'], Patient.objects.filter(id = patient_id).values('ETA_U')[0]['ETA_U'], Patient.objects.filter(id = patient_id).values('ETA_B')[0]['ETA_B'],Patient.objects.filter(id = patient_id).values('ETA_C')[0]['ETA_C']] # 병원별 도착 시간
     
-    t0 = [[0,0],[0,0],[0,0],[0,0]] # 병원별 도착 시간
-    t = [[0,0],[0,0],[0,0],[0,0]]
-    t[0] = Patient.objects.filter(id = patient_id).values('ETA_S')[0]['ETA_S']
-    t[1] = Patient.objects.filter(id = patient_id).values('ETA_U')[0]['ETA_U']
-    t[2] = Patient.objects.filter(id = patient_id).values('ETA_B')[0]['ETA_B']
-    t[3] = Patient.objects.filter(id = patient_id).values('ETA_C')[0]['ETA_C']
+    #print("time is  ===== ",Patient.objects.filter(id = patient_id).values('ETA_S')[0]['ETA_S'])
     
-    n = 0
-    for i in t:
-        t0[n][0] = int(i.split(':')[0])
-        t0[n][1] = int(i.split(':')[1])
-        n+=1
     
     #정렬 함수 정의
     def qsort(a):
@@ -99,7 +88,7 @@ def user_output(request, patient_id):
             else:
                 ae.append(i)
         return qsort(al) + ae + qsort(ar)
-    
+
     # 병원 이름     
     name_hos = soup.find_all('div',class_ = "dash_box")
     n = 0
@@ -117,7 +106,7 @@ def user_output(request, patient_id):
         name_sur.append(i.get_text())
         n+=1
     #성모 : [130:156] / 추병원 : [284:310]
- 
+
     # sur_hos는 수술실리스트 집합
     s1_1 = [[1,[2,2],[4,4]]] # 성모,수술종류_응급도
     s1_2 = [[1,[4,4],[11,11]]]
@@ -290,25 +279,28 @@ def user_output(request, patient_id):
     #직접 온 사람일때 db 업데이트 (by = 1)
     #병원 입력창에서 받고 난 후에 하는 연산
         
-    if Patient.objects.filter(id = patient_id).values('by')[0]['by'] == 1: #patient_id??
+    if Patient.objects.filter(id = patient_id).values('by')[0]['by'] == 1: #병원 직접 
+        t0 = [[0,0],[0,0],[0,0],[0,0]] # 병원별 도착 시간
+        tfinal = [] #이 경우에는 도착 = 치료시작
+        t = ['a','a','a','a']
+        t[0] = Patient.objects.filter(id = patient_id).values('ETA_S')[0]['ETA_S']
+        t[1] = Patient.objects.filter(id = patient_id).values('ETA_U')[0]['ETA_U']
+        t[2] = Patient.objects.filter(id = patient_id).values('ETA_B')[0]['ETA_B']
+        t[3] = Patient.objects.filter(id = patient_id).values('ETA_C')[0]['ETA_C']
+        
+        for i in range(0,4): #ETA 존재하면 이미 간 병원 
+            if t[i] != '-':
+                tfinal.append(int(t[i].split(':')[0]))
+                tfinal.append(int(t[i].split(':')[1]))
+                tfinal.append(i) #사실 이때 i가 hos
+                
         #수술실 타임라인 가져오기
         #지금 있는거보다 더 많으면 가져오기
-     
+        print("111111111111111111111111")
         # = Patient.objects.latest('id')
         hos = Patient.objects.filter(id = patient_id).values('hos')[0]['hos']
         sur = Patient.objects.filter(id = patient_id).values('oper')[0]['oper']
         emer = Patient.objects.filter(id = patient_id).values('emer')[0]['emer']
-        tfinal = []
-        
-        t0 = [[0,0],[0,0],[0,0],[0,0]]# 병원별 도착 시간
-        t = [0,0,0,0]
-        t[0] = Patient.objects.filter(id = patient_id).values('ETA_S')[0]['ETA_S']
-        t[3] = Patient.objects.filter(id = patient_id).values('ETA_C')[0]['ETA_C']
-        
-        t0[0][0] = int(t[0].split(':')[0])
-        t0[0][1] = int(t[0].split(':')[1])
-        t0[3][0] = int(t[3].split(':')[0])
-        t0[3][1] = int(t[3].split(':')[1])
         
         def tplus(a,b,c,d): #시간 연산 알고리즘()
             if b+d >=60:
@@ -349,33 +341,6 @@ def user_output(request, patient_id):
         
         #tfinal = [시, 분, 병원]
         #db 미는 부분 추가 
-        gaptime = [0,0]
-        if emer == 3: #응급도 클수록 우선 
-            if tcom(sur_hos[sur-1][emer-2+tfinal[0][2]][0][1],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2]) == 1 or 2 : #도착 시간이 더 늦어서 변동X
-                gaptime = [0,0]
-            else:
-                gaptime = tmin(sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1])
-                for i in sur_hos[sur-1][emer-2+tfinal[0][2]]: 
-                    tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
-                    tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
- 
-            if tcom(sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][1]): #도착 시간이 더 늦어서 변동X
-                gaptime = [0,0]
-            else:
-                gaptime = tmin(sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][1])
-                for i in sur_hos[sur-1][emer-3+tfinal[0][2]]:
-                    tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
-                    tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
- 
-        elif emer == 2:
-            if tcom(sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1]): #도착 시간이 더 늦어서 변동X
-                gaptime = [0,0]
-            else :
-                gaptime = tmin(sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1])
-                for i in sur_hos[sur-1][emer-2+tfinal[0][2]]:
-                    tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
-                    tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
- 
  
         if sur != 0: #수술 필요시
             if hos == '0': #성모 병원 간 사람
@@ -393,206 +358,293 @@ def user_output(request, patient_id):
                 else: #기다려야됨
                     tfinal.append([sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1],3])
                 sur_hos[sur-1][emer+2].append([patient_id,[tfinal[0],tfinal[1]],tplus(tfinal[0],tfinal[1],stay[sur][0],stay[sur][1])])
+        
+        #타임라인 업데이트
+        gaptime = [0,0]
+        if emer == 3: #응급도 클수록 우선 
+            if tcom(sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1]) == 1 or 2 : #도착 시간이 더 늦어서 변동X
+                gaptime = [0,0]
+            else:
+                gaptime = tmin(sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1])
+                for i in sur_hos[sur-1][emer-2+tfinal[0][2]]: 
+                    i[1] = tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
+                    i[2] = tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
  
+            if tcom(sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][1]) == 1 or 2: #도착 시간이 더 늦어서 변동X
+                gaptime = [0,0]
+            else:
+                gaptime = tmin(sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][1])
+                for i in sur_hos[sur-1][emer-3+tfinal[0][2]]:
+                    i[1] = tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
+                    i[2] = tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
  
-        p1 = Patient.objects.filter(id = patient_id).values()
-        p1[0]['hos'] = str(tfinal[0][2])
-        p1[0]['start'] = timeon(tfinal[0][0],tfinal[0][1])
+        elif emer == 2:
+            if tcom(sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1]) == 1 or 2: #도착 시간이 더 늦어서 변동X
+                gaptime = [0,0]
+            else :
+                gaptime = tmin(sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1])
+                for i in sur_hos[sur-1][emer-2+tfinal[0][2]]:
+                    i[1] = tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
+                    i[2] = tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
+ 
+    
         if sur !=0 :
-            p1[0]['end'] = timeon(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1])
-        else :
-            p1[0]['end'] = timeon(tfinal[0][0],tfinal[0][1])
-        p1.save()
-     
- 
-#구급차로 직접 이송한 환자
-    # t0 받아오는 코드
-    t0 = [[0,0],[0,0],[0,0],[0,0]] # 병원별 도착 시간
-    t = ['a','a','a','a']
-    t[0] = Patient.objects.filter(id = patient_id).values('ETA_S')[0]['ETA_S']
-    t[1] = Patient.objects.filter(id = patient_id).values('ETA_U')[0]['ETA_U']
-    t[2] = Patient.objects.filter(id = patient_id).values('ETA_B')[0]['ETA_B']
-    t[3] = Patient.objects.filter(id = patient_id).values('ETA_C')[0]['ETA_C']
- 
-    n = 0
-    for i in t:
-        t0[n][0] = int(i.split(':')[0])
-        t0[n][1] = int(i.split(':')[1])
-        print(t0[n])
-        n+=1
- 
-    def tplus(a,b,c,d): #시간 덧셈 알고리즘()
-        if b+d >=60:
-            if a+c >=24:
-                return [a+c-23,b+d-60]
-            else:
-                return [a+c+1,b+d-60]
+            Patient.objects.filter(id = patient_id).update(hos = str(tfinal[0][2]), start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1]))
         else:
-            if a+c >=24:
-                return [a+c-24,b+d]
-            else:
-                return [a+c,b+d] 
+            Patient.objects.filter(id = patient_id).update(hos = str(tfinal[0][2]), start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(tfinal[0][0],tfinal[0][1]))
+        
+        hos = Patient.objects.filter(id = patient_id).values('hos')[0]['hos']
+        print(hos)
+        return redirect('/hos_input?hos={}'.format(hos))
+            
+#구급차로 직접 이송한 환자
+    elif Patient.objects.filter(id = patient_id).values('by')[0]['by'] == 0: #구급차로 이동 
+        
+        #t0 받아오는 코드
+        t0 = [[0,0],[0,0],[0,0],[0,0]] # 병원별 도착 시간
+        t = ['a','a','a','a']
+        t[0] = Patient.objects.filter(id = patient_id).values('ETA_S')[0]['ETA_S']
+        t[1] = Patient.objects.filter(id = patient_id).values('ETA_U')[0]['ETA_U']
+        t[2] = Patient.objects.filter(id = patient_id).values('ETA_B')[0]['ETA_B']
+        t[3] = Patient.objects.filter(id = patient_id).values('ETA_C')[0]['ETA_C']
+     
         n = 0
         for i in t:
-            t0[n] = i.split(':')
+            t0[n][0] = int(i.split(':')[0])
+            t0[n][1] = int(i.split(':')[1])
+            print(t0[n])
             n+=1
-   
-    def tmin(a,b,c,d): #시간 뺄셈 알고리즘()
-        if tplus(a,b,c,d) == 2:
-            return "false"
-        else: #앞 시간이 클때 
-            if b >= d: # 무조건 a >= c
-                return [a-c,b-d]
-            else: #무조건 a > c 
-                return [a-c-1,b-d+60]
-                
-    def tcom(a,b,c,d):
-            if a > c: #앞이 더 큼
-                return 1 #더 빠른거
-            elif a == c:
-                if b > d:
-                    return 1
-                elif b == d:
-                    return 2 #같으면 2
+     
+        def tplus(a,b,c,d): #시간 덧셈 알고리즘()
+            if b+d >=60:
+                if a+c >=24:
+                    return [a+c-23,b+d-60]
+                else:
+                    return [a+c+1,b+d-60]
+            else:
+                if a+c >=24:
+                    return [a+c-24,b+d]
+                else:
+                    return [a+c,b+d] 
+            n = 0
+            for i in t:
+                t0[n] = i.split(':')
+                n+=1
+       
+        def tmin(a,b,c,d): #시간 뺄셈 알고리즘()
+            if tplus(a,b,c,d) == 2:
+                return "false"
+            else: #앞 시간이 클때 
+                if b >= d: # 무조건 a >= c
+                    return [a-c,b-d]
+                else: #무조건 a > c 
+                    return [a-c-1,b-d+60]
+                    
+        def tcom(a,b,c,d):
+                if a > c: #앞이 더 큼
+                    return 1 #더 빠른거
+                elif a == c:
+                    if b > d:
+                        return 1
+                    elif b == d:
+                        return 2 #같으면 2
+                    else:
+                        return 0
                 else:
                     return 0
-            else:
-                return 0
- 
-    def timeon(a,b):
-        return str(a)+":"+str(b)
- 
-    # 체크리스트에서 sur,emer 받아오기
-    emer = Patient.objects.filter(id = patient_id).values('emer')[0]['emer']
-    sur = Patient.objects.filter(id = patient_id).values('oper')[0]['oper']
- 
-    #병상 정보 크롤링 [사용된 병상, 전체 병상 수]
-    number = soup.find_all('div',class_="data_data data_td_O038") # 일반 병상
-    n = 0
-    for i in number:
-        number[n] = re.compile('\w+').findall(i.get_text())
-        n+=1
-           # 치료 가능 여부 [불가능, 가능, 미제공]
-        sur2 = soup.find_all('td')
-      
-    n = 0 
-    for i in sur2:
-        sur2[n] = re.compile('\w+').findall(i.get_text())
-        n+=1
-      
-    n = 0
-    for i in sur2[129:156]:
-        n+=1 # 칸 번호 = 수술 종류 (1부터 시작)
-        if i[-1] == "가능":
-            sungmo_sur.append(1)
-        elif i[-1] == "불가능":
-            sungmo_sur.append(0)
-        else:
-            sungmo_sur.append(2)
      
-    n = 0
-    for i in sur2[283:310]:
-        n+=1 # 칸 번호 = 수술 종류 (1부터 시작)
+        def timeon(a,b):
+            return str(a)+":"+str(b)
      
-        if i[-1] == "가능":
-            chu_sur.append(1)
-        elif i[-1] == "불가능":
-            chu_sur.append(0)
-        else:
-            chu_sur.append(2)
+        # 체크리스트에서 sur,emer 받아오기
+        emer = Patient.objects.filter(id = patient_id).values('emer')[0]['emer']
+        sur = Patient.objects.filter(id = patient_id).values('oper')[0]['oper']
      
-        
-        
-    #가능한 병원 찾기 
-     
-    tfinal = [] #최종 치료 가능 시작 시간
-    poss_hos = [-1,-1,-1,-1]  #가능한 병원(병원순서대로 칸 번호)
-       
-    if sur == 0: #중증X -> 응급실 유무만
+        #병상 정보 크롤링 [사용된 병상, 전체 병상 수]
+        number = soup.find_all('div',class_="data_data data_td_O038") # 일반 병상
         n = 0
         for i in number:
-            if int(i[0]) < int(i[1]): #병상 있으면 가능(1)
-                poss_hos[n] = 1
-                tfinal.append([t0[n][0],t0[n][1],n]) #가능하면 [[t0(시,분)),병원숫자](가까운데로)
-            else: #없으면 불가능(0)
-                poss_hos[n] = 0
+            number[n] = re.compile('\w+').findall(i.get_text())
             n+=1
-        
-        #이때는 바로 tfinal sort로 넘어가면 됨
-        tfinal = qsort(tfinal)
-        result = {}
-        result['emer'] = emer
-        result['oper'] = sur
-        result['hos'] = str(tfinal[0][2])
-        result['time'] = Patient.objects.filter(id = patient_id).values('time')[0]['time']
-        result['ETE_S'] = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
-        result['ETE_U'] = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
-        result['ETE_B'] = int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B'])
-        result['ETE_C'] = int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C'])
-        result['ETA_S'] = t0[0]
-        result['ETA_U'] = t0[1]
-        result['ETA_B'] = t0[2]
-        result['ETA_C'] = t0[3]
-        result['start'] = timeon(tfinal[0][0],tfinal[0][1])
-        result['end'] = timeon(tfinal[0][0],tfinal[0][1])
-        
-        p1 = Patient.objects.filter(id = patient_id).values()
-        p1[0]['hos'] = str(tfinal[0][2])
-        p1[0]['start'] = timeon(tfinal[0][0],tfinal[0][1])
-        Patient.objects.filter(id = patient_id).update(hos = tfinal[0][2], start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1]))
-
-
-    else: #(poss_hos에 병원 2개) (성모,추)
-        n = 0
-        if sungmo_sur[sur] == 1:
-            poss_hos[0] = 3 #성모 가능
-        
-        elif sungmo_sur[sur] == 0 or 2:
-            poss_hos[0] = 2 #성모 불가능
+               # 치료 가능 여부 [불가능, 가능, 미제공]
+            sur2 = soup.find_all('td')
           
-        if chu_sur[sur] == 1:
-            poss_hos[3] = 3 #추 가능  
-      
-        elif chu_sur[sur] == 0 or 2:
-            poss_hos[3] = 2 #추 불가능
-        n+=1
-
-        #병원 별로 도착시간과 같은 응급도 타임라인에서 마지막 치료종료시간과 비교 
-        if poss_hos[0] == 3: #0,3 => 성모 가능
-            if  tcom(sur_hos[sur-1][emer-1][-1][2][0],sur_hos[sur-1][emer-1][-1][2][1],t0[0][0],t0[0][1]) == 1 or 2: #도착하자마자 가능
-                tfinal.append([t0[0][0],t0[0][1],0])
-            else: #기다려야됨
-                tfinal.append([sur_hos[sur-1][emer-1][-1][2][0],sur_hos[sur-1][emer-1][-1][2][1],0])
-
-        if poss_hos[3] == 3: #3,3 => 추 가능
-            if tcom(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1],t0[3][0],t0[3][1]) == 1 or 2: #종료시간과 도착 시간 비교
-                tfinal.append([t0[3][0],t0[3][1],3])
+        n = 0 
+        for i in sur2:
+            sur2[n] = re.compile('\w+').findall(i.get_text())
+            n+=1
+          
+        n = 0
+        for i in sur2[129:156]:
+            n+=1 # 칸 번호 = 수술 종류 (1부터 시작)
+            if i[-1] == "가능":
+                sungmo_sur.append(1)
+            elif i[-1] == "불가능":
+                sungmo_sur.append(0)
             else:
-                tfinal.append([sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1],3])
-
-        result = {}
-        if tfinal == []: #둘다 불가능 할때(거리순)
-            if tcom(t0[0][0],t0[0][1],t0[3][0],t0[3][1]) == 1 or 2: #추병원이 더 가깝다
-                tfinal.append([t0[3][0],t0[3][1],3])
-                result['emer'] = emer
-                result['oper'] = sur
-                result['hos'] = "3"
-                result['time'] = Patient.objects.filter(id = patient_id).values('time')[0]['time']
-                result['ETE_S'] = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
-                result['ETE_U'] = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
-                result['ETE_B'] = int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B'])
-                result['ETE_C'] = int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C'])
-                result['ETA_S'] = t0[0]
-                result['ETA_U'] = t0[1]
-                result['ETA_B'] = t0[2]
-                result['ETA_C'] = t0[3]
-                result['poss'] = 1
+                sungmo_sur.append(2)
+         
+        n = 0
+        for i in sur2[283:310]:
+            n+=1 # 칸 번호 = 수술 종류 (1부터 시작)
+         
+            if i[-1] == "가능":
+                chu_sur.append(1)
+            elif i[-1] == "불가능":
+                chu_sur.append(0)
+            else:
+                chu_sur.append(2)
+         
+            
+            
+        #가능한 병원 찾기 
+         
+        tfinal = [] #최종 치료 가능 시작 시간
+        poss_hos = [-1,-1,-1,-1]  #가능한 병원(병원순서대로 칸 번호)
+           
+        if sur == 0: #중증X -> 응급실 유무만
+            n = 0
+            for i in number:
+                if int(i[0]) < int(i[1]): #병상 있으면 가능(1)
+                    poss_hos[n] = 1
+                    tfinal.append([t0[n][0],t0[n][1],n]) #가능하면 [[t0(시,분)),병원숫자](가까운데로)
+                else: #없으면 불가능(0)
+                    poss_hos[n] = 0
+                n+=1
+            
+            #이때는 바로 tfinal sort로 넘어가면 됨
+            tfinal = qsort(tfinal)
+            
+            result = {}
+            result['emer'] = emer
+            result['oper'] = sur
+            result['hos'] = str(tfinal[0][2])
+            result['time'] = Patient.objects.filter(id = patient_id).values('time')[0]['time']
+            result['ETE_S'] = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
+            result['ETE_U'] = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
+            result['ETE_B'] = int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B'])
+            result['ETE_C'] = int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C'])
+            result['ETA_S'] = t0[0]
+            result['ETA_U'] = t0[1]
+            result['ETA_B'] = t0[2]
+            result['ETA_C'] = t0[3]
+            result['start'] = timeon(tfinal[0][0],tfinal[0][1])
+            result['end'] = timeon(tfinal[0][0],tfinal[0][1])
+            
+            #db 업데이트
+            Patient.objects.filter(id = patient_id).update(hos = str(tfinal[0][2]), start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1]))
+    
+    
+        else: #(poss_hos에 병원 2개) (성모,추)
+            n = 0
+            if sungmo_sur[sur] == 1:
+                poss_hos[0] = 3 #성모 가능
+            
+            elif sungmo_sur[sur] == 0 or 2:
+                poss_hos[0] = 2 #성모 불가능
+              
+            if chu_sur[sur] == 1:
+                poss_hos[3] = 3 #추 가능  
+          
+            elif chu_sur[sur] == 0 or 2:
+                poss_hos[3] = 2 #추 불가능
+            n+=1
+    
+            #병원 별로 도착시간과 같은 응급도 타임라인에서 마지막 치료종료시간과 비교 
+            if poss_hos[0] == 3: #0,3 => 성모 가능
+                if  tcom(sur_hos[sur-1][emer-1][-1][2][0],sur_hos[sur-1][emer-1][-1][2][1],t0[0][0],t0[0][1]) == 1 or 2: #도착하자마자 가능
+                    tfinal.append([t0[0][0],t0[0][1],0])
+                else: #기다려야됨
+                    tfinal.append([sur_hos[sur-1][emer-1][-1][2][0],sur_hos[sur-1][emer-1][-1][2][1],0])
+    
+            if poss_hos[3] == 3: #3,3 => 추 가능
+                if tcom(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1],t0[3][0],t0[3][1]) == 1 or 2: #종료시간과 도착 시간 비교
+                    tfinal.append([t0[3][0],t0[3][1],3])
+                else:
+                    tfinal.append([sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1],3])
+    
+            result = {}
+            if tfinal == []: #둘다 불가능 할때(거리순)
+                if tcom(t0[0][0],t0[0][1],t0[3][0],t0[3][1]) == 1 or 2: #추병원이 더 가깝다
+                    tfinal.append([t0[3][0],t0[3][1],3])
+                    result['emer'] = emer
+                    result['oper'] = sur
+                    result['hos'] = "3"
+                    result['time'] = Patient.objects.filter(id = patient_id).values('time')[0]['time']
+                    result['ETE_S'] = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
+                    result['ETE_U'] = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
+                    result['ETE_B'] = int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B'])
+                    result['ETE_C'] = int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C'])
+                    result['ETA_S'] = t0[0]
+                    result['ETA_U'] = t0[1]
+                    result['ETA_B'] = t0[2]
+                    result['ETA_C'] = t0[3]
+                    result['poss'] = 1
+                    
+                else:
+                    tfinal.append([t0[0][0],t0[0][1],0])
+                    result['emer'] = emer
+                    result['oper'] = sur
+                    result['hos'] = "0"
+                    result['time'] = Patient.objects.filter(id = patient_id).values('time')[0]['time']
+                    result['ETE_S'] = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
+                    result['ETE_U'] = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
+                    result['ETE_B'] = int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B'])
+                    result['ETE_C'] = int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C'])
+                    result['ETA_S'] = t[0]
+                    result['ETA_U'] = t[1]
+                    result['ETA_B'] = t[2]
+                    result['ETA_C'] = t[3]
+                    result['poss'] = 1
+    
+                if sur == 0 :
+                    Patient.objects.filter(id = patient_id).update(hos = str(tfinal[0][2]), start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1]))
                 
-            else:
-                tfinal.append([t0[0][0],t0[0][1],0])
+                else :
+                    Patient.objects.filter(id = patient_id).update(hos = str(tfinal[0][2]), start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1]))
+    
+            else: #수술 가능 병원 존재 
+                #tfinal 정렬
+                tfinal = qsort(tfinal)
+     
+                #환자, 타임라인 업데이트
+                #patient_list.extend([patient_id,tfinal[0][1],tfinal[0][0],tfinal[0][0]+stay[sur]]) # 정한 병원, tfinal, 예상 완료시간
+                if sur != 0:
+                    sur_hos[sur-1][emer-1+tfinal[0][2]].append([patient_id,[tfinal[0][0],tfinal[0][1]],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])]) #0 emer-1 / 3 emer+2
+     
+                #응급도별 타임라인 시간 조정 (1일때는 변화 X)
+                gaptime = [0,0]
+                if emer == 3: #응급도 클수록 우선
+                    if tcom(sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1]) == 1 or 2 : #도착 시간이 더 늦어서 변동X
+                        gaptime = [0,0]
+                    else:
+                        gaptime = tmin(sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1])
+                        for i in sur_hos[sur-1][emer-2+tfinal[0][2]]: 
+                            i[1] = tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
+                            i[2] = tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
+     
+                    if tcom(sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][1]): #도착 시간이 더 늦어서 변동X
+                        gaptime = [0,0]
+                    else:
+                        gaptime = tmin(sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][1])
+                        for i in sur_hos[sur-1][emer-3+tfinal[0][2]]:
+                            i[1] = tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
+                            i[2] = tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
+     
+                elif emer == 2:
+                    if tcom(sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1]): #도착 시간이 더 늦어서 변동X
+                        gaptime = [0,0]
+                    else :
+                        gaptime = tmin(sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1])
+                        for i in sur_hos[sur-1][emer-2+tfinal[0][2]]:
+                            i[1] = tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
+                            i[2] = tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
+     
+                result = {} #출력할 결과물
+                #출력 / 필드명 : emer, oper, hos, by, time(현재시간), ETE_S, ETE_U, ETE_B, ETE_C, ETA_S, ETA_U, ETA_B, ETA_C, start, end 를 딕셔너리로
                 result['emer'] = emer
                 result['oper'] = sur
-                result['hos'] = "0"
+                result['hos'] = str(tfinal[0][2])
                 result['time'] = Patient.objects.filter(id = patient_id).values('time')[0]['time']
                 result['ETE_S'] = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
                 result['ETE_U'] = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
@@ -602,77 +654,11 @@ def user_output(request, patient_id):
                 result['ETA_U'] = t[1]
                 result['ETA_B'] = t[2]
                 result['ETA_C'] = t[3]
-                result['poss'] = 1
-
-            p1 = Patient.objects.filter(id = patient_id).values()
-            p1[0]['hos'] = str(tfinal[0][2])
-            p1[0]['start'] = timeon(tfinal[0][0],tfinal[0][1])
-            if sur !=0 :
-                Patient.objects.filter(id = patient_id).update(hos = tfinal[0][2], start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1]))
-            
-            else :
-                Patient.objects.filter(id = patient_id).update(hos = tfinal[0][2], start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1]))
-
-        else:
-            #tfinal 정렬
-            tfinal = qsort(tfinal)
- 
-            #환자, 타임라인 업데이트
-            #patient_list.extend([patient_id,tfinal[0][1],tfinal[0][0],tfinal[0][0]+stay[sur]]) # 정한 병원, tfinal, 예상 완료시간
-            if sur != 0:
-                sur_hos[sur-1][emer-1+tfinal[0][2]].append([patient_id,[tfinal[0][0],tfinal[0][1]],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])]) #0 emer-1 / 3 emer+2
- 
-            #응급도별 타임라인 시간 조정 (1일때는 변화 X)
-            gaptime = [0,0]
-            if emer == 3: #응급도 클수록 우선
-                if tcom(sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1]) == 1 or 2 : #도착 시간이 더 늦어서 변동X
-                    gaptime = [0,0]
-                else:
-                    gaptime = tmin(sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1])
-                    for i in sur_hos[sur-1][emer-2+tfinal[0][2]]: 
-                        tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
-                        tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
- 
-                if tcom(sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][1]): #도착 시간이 더 늦어서 변동X
-                    gaptime = [0,0]
-                else:
-                    gaptime = tmin(sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-2+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-3+tfinal[0][2]][0][1][1])
-                    for i in sur_hos[sur-1][emer-3+tfinal[0][2]]:
-                        tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
-                        tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
- 
-            elif emer == 2:
-                if tcom(sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1]): #도착 시간이 더 늦어서 변동X
-                    gaptime = [0,0]
-                else :
-                    gaptime = tmin(sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][0],sur_hos[sur-1][emer-1+tfinal[0][2]][-1][2][1],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][0],sur_hos[sur-1][emer-2+tfinal[0][2]][0][1][1])
-                    for i in sur_hos[sur-1][emer-2+tfinal[0][2]]:
-                        tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
-                        tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
- 
-            result = {} #출력할 결과물
-            #출력 / 필드명 : emer, oper, hos, by, time(현재시간), ETE_S, ETE_U, ETE_B, ETE_C, ETA_S, ETA_U, ETA_B, ETA_C, start, end 를 딕셔너리로
-            result['emer'] = emer
-            result['oper'] = sur
-            result['hos'] = str(tfinal[0][2])
-            result['time'] = Patient.objects.filter(id = patient_id).values('time')[0]['time']
-            result['ETE_S'] = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
-            result['ETE_U'] = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
-            result['ETE_B'] = int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B'])
-            result['ETE_C'] = int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C'])
-            result['ETA_S'] = t[0]
-            result['ETA_U'] = t[1]
-            result['ETA_B'] = t[2]
-            result['ETA_C'] = t[3]
-            result['start'] = timeon(tfinal[0][0],tfinal[0][1])
-            result['end'] = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1])
-            result['poss'] = 0
-            #db 업데이트 코드
-            #선정병원, 예상시작시간, 예상종료시간
-            p1 = Patient.objects.filter(id = patient_id).values()
-            p1[0]['hos'] = str(tfinal[0][2])
-            p1[0]['start'] = timeon(tfinal[0][0],tfinal[0][1])
-            Patient.objects.filter(id = patient_id).update(hos = tfinal[0][2], start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(sur_hos[sur-1][emer+2][-1][2][0],sur_hos[sur-1][emer+2][-1][2][1]))
- 
+                result['start'] = timeon(tfinal[0][0],tfinal[0][1])
+                result['end'] = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1])
+                result['poss'] = 0
+                #db 업데이트 코드
+                #선정병원, 예상시작시간, 예상종료시간
+                Patient.objects.filter(id = patient_id).update(hos = str(tfinal[0][2]), start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1]))
  
     return render(request, 'emerapp/user_output.html', {'result': result})

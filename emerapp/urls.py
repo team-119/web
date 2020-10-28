@@ -7,4 +7,5 @@ urlpatterns = [
         path('user_input/', views.user_input, name='user_input'),
         path('hos_input/', views.hos_input, name='hos_input'),
         path('user_output/<int:patient_id>/', views.user_output, name='user_output'),
+        #path('hos_output/<int:patient_id>/', views.hos_output, name='hos_output'),
 ]
