@@ -5,6 +5,7 @@ from django.http import HttpResponse
 
 import requests
 import re
+import json
 from bs4 import BeautifulSoup as bs
 
 def home(request):  
@@ -660,5 +661,7 @@ def user_output(request, patient_id):
                 #db 업데이트 코드
                 #선정병원, 예상시작시간, 예상종료시간
                 Patient.objects.filter(id = patient_id).update(hos = str(tfinal[0][2]), start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1]))
- 
-    return render(request, 'emerapp/user_output.html', {'result': result})
+                
+                jresult = json.dumps(result)
+                
+    return render(request, 'emerapp/user_output.html', {'result': jresult})
