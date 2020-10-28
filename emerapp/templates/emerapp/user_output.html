@@ -5,6 +5,7 @@
         <title>AMBULANCE output</title>
         <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300">
 
+
         <style>
             @font-face {
             font-family: 'Source Sans Pro';
@@ -18,8 +19,15 @@
                 font-weight: 300;
                 src: local('Source Sans Pro Light'), local('SourceSansPro-Light'), url(https://fonts.gstatic.com/s/sourcesanspro/v14/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdr.ttf) format('truetype');
             }
+            @import url(https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css);
 
-            html { font-size: 10px; margin: 0px; }
+
+
+            html {
+                font-family: 'NanumSquare', sans-serif;
+                font-size: 10px;
+                margin: 0px;
+                }
             h1 { font-size: 4rem; }
             h2 { font-size: 2.5rem; }
             header {
@@ -44,15 +52,16 @@
                 width: 50%;
                 margin-left: 3%;
                 margin-right: 2.5%;
+                margin-bottom: 100px;
                 padding: 0;
                 height: 500px;
                 position: relative;
                 float: left;
             }
             aside {
-                background-color: rgb(212, 216, 189);
                 width: 38%;
                 margin-right: 6.5%;
+                margin-bottom: 100px;
                 height: 500px;
                 position: relative;
                 float: right;
@@ -74,45 +83,48 @@
                 margin: 0;
             }
             .timebar_area {
-                background-color: thistle;
                 width: 100%;
                 height: 23%;
-                margin: 0; 
+                margin: 0;
             }
             .detail_area {
                 width: 100%;
                 height: 100px;
+                font-size: 2rem;
+                color:rgb(63, 61, 59);
+                background: rgba(173,185,202,0.57);
                 margin: 0;
                 position: absolute;
+                top: 270px;
+                left: 0%;
             }
             
 
 
             #clock { 
-                float: right;
-                font-weight: bold;
-                font-size: 1.5rem;
-                color:rgb(63, 61, 59);
-                margin-top: 0%;
-                margin-right: 6.5%;
-                margin-left: 50%
+                float: left;
+                margin: 2%;
+                position: absolute;
+                top: 6px;
             }
 
             #result_emer {
                 width: 10%;
-                background:rgb(188, 232, 243);
+                background:rgb(223, 223, 223);
                 padding: 1rem;
                 margin-left: 33%;
                 border-radius:3px 3px 3px 3px;
+                font-size: 1.5rem;
                 position: relative;
                 float: left;
             }
             #result_oper {
                 width: 20%;
-                background:rgb(188, 232, 243);
+                background:rgb(223, 223, 223);
                 padding: 1rem;
                 margin-right: 33%;
                 border-radius:3px 3px 3px 3px;
+                font-size: 1.5rem;
                 position: relative;
                 float: right;
             }
@@ -120,7 +132,7 @@
                 margin-top: 5%;
                 margin-left: 5%;
                 color: white;
-                font-size: 2.5rem;
+                font-size: 2.3rem;
                 width: 47%;
                 height: 40%;
                 position: relative;
@@ -139,6 +151,13 @@
                 float: right;
                 
             }
+            #result_wait {
+                block-size: 100%;
+                margin: 2%;
+                position: absolute;
+                top: 41px;
+            }
+
 
             #timebar1 {
                 background: #203864;
@@ -148,9 +167,9 @@
                 padding: 1.5%;
                 margin-top: 3%;
                 margin-bottom: 1%;
-                width: 70%;
-                position: relative;
-                display: inline-block;
+                width: 60%;
+                top: 380px;
+                position: absolute;
             }
             #timebar2 {
                 background: #203864;
@@ -160,18 +179,17 @@
                 padding: 1.5%;
                 margin-top: 1%;
                 width: 70%;
-                position: relative;
-                display: inline-block;
+                top: 450px;
+                position: absolute;
             }
             #BIBO {
             width: 150px;
             margin-left: 3%;
         }
 
-
         </style>
 
-        <script   src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script     src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script src="https://apis.openapi.sk.com/tmap/jsv2?version=2&appKey=l7xxf6a3bebd3c3b4d69bdbd799bc288845d"></script>
         <script type="text/javascript">
 
@@ -576,7 +594,7 @@
 
             function Main()
             {
-                //selectHospital = $("#selectHospital").val();
+                selectHospital = $("#selectHospital").val();
                 document.getElementById("result_hos").innerHTML
                     = hospital[selectHospital].name;
 
@@ -589,6 +607,24 @@
                 document.getElementById("result_ETE").innerHTML
                 = $("#ETE").val() + "분"
 
+                var ETE = $("#ETE").val();
+                var ETA = $("#ETE").val();
+                var time = $("#time").val();
+                var start = $("#start").val();
+                var end = $("#end").val();
+
+                var wait = [0,0];
+                var aid = 0;
+
+                if( (ETA[0]*60+ETA[1]) < (start[0]*60+start[1]) ){
+                     document.getElementById("wait").innerHTML
+                    = "대기 필요"
+                }
+                else{
+                    document.getElementById("wait").innerHTML
+                    = "대기 없음"
+                }
+                
 
                 printTime();
                 Map_nav();
@@ -606,97 +642,114 @@
     </head>
     <body onload="Main()">
 
-        {% if result.hos == "0" %}
-      <input type=hidden id="selectHospital" value=0><p>성공</p>
-      {% elif result.hos == "1" %}
-      <input type=hidden id="selectHospital" value=1><p>성공</p>
-      {% elif result.hos == "2" %}
-      <input type=hidden id="selectHospital" value=2><p>성공</p>
-      {% elif result.hos == "3" %}
-      <input type=hidden id="selectHospital" value=3><p>성공</p>
-        {% endif %}
+       <span>
+            {% if result.hos == "0" %}
+          <input type=hidden id="selectHospital" value=0>
+          {% elif result.hos == "1" %}
+          <input type=hidden id="selectHospital" value=1>
+          {% elif result.hos == "2" %}
+          <input type=hidden id="selectHospital" value=2>
+          {% elif result.hos == "3" %}
+          <input type=hidden id="selectHospital" value=3>
+            {% endif %}
+    
+            {% if result.emer == 3 %}
+            <input type=hidden id="emer" value="긴급">
+            {% elif result.emer == 2 %}
+            <input type=hidden id="emer" value="응급">
+            {% elif result.emer == 1 %}
+            <input type=hidden id="emer" value="비응급">
+            {% endif %}
+    
+            {% if result.oper == 0 %}
+            <input type=hidden id="oper" value="수술 안함">
+            {% elif result.oper == 1 %}
+            <input type=hidden id="oper" value="[재관류중재술] 심근경색">
+            {% elif result.oper == 2 %}
+            <input type=hidden id="oper" value="[재관류중재술] 뇌경색">
+            {% elif result.oper == 3 %}
+            <input type=hidden id="oper" value="[뇌출혈수술] 거미막하출혈">
+            {% elif result.oper == 4 %}
+            <input type=hidden id="oper" value="[뇌출혈수술] 거미막하출혈외">
+            {% elif result.oper == 5 %}
+            <input type=hidden id="oper" value="[대동맥응급] 흉부">
+            {% elif result.oper == 6 %}
+            <input type=hidden id="oper" value="[대동맥응급] 복부">
+            {% elif result.oper == 7 %}
+            <input type=hidden id="oper" value="[담낭담관질환] 담낭질환">
+            {% elif result.oper == 8 %}
+            <input type=hidden id="oper" value="[담낭담관질환] 담도포함질환">
+            {% elif result.oper == 9 %}
+            <input type=hidden id="oper" value="[복부응급수술] 비외상">
+            {% elif result.oper == 10 %}
+            <input type=hidden id="oper" value="[장중첩/폐색] 영유아">
+            {% elif result.oper == 11 %}
+            <input type=hidden id="oper" value="[사지접합의수술] 수족지접합">
+            {% elif result.oper == 12 %}
+            <input type=hidden id="oper" value="[사지접합의수술] 수족지접합외">
+            {% elif result.oper == 13 %}
+            <input type=hidden id="oper" value="[위장관응급내시경] 성인">
+            {% elif result.oper == 14 %}
+            <input type=hidden id="oper" value="[위장관응급내시경] 영유아">
+            {% elif result.oper == 15 %}
+            <input type=hidden id="oper" value="[기관지응급내시경] 성인">
+            {% elif result.oper == 16 %}
+            <input type=hidden id="oper" value="[기관지응급내시경] 영유아">
+            {% elif result.oper == 17 %}
+            <input type=hidden id="oper" value="[산부인과응급] 분만">
+            {% elif result.oper == 18 %}
+            <input type=hidden id="oper" value="[산부인과응급] 산과수술">
+            {% elif result.oper == 19 %}
+            <input type=hidden id="oper" value="[산부인과응급] 부인과수술">
+            {% elif result.oper == 20 %}
+            <input type=hidden id="oper" value="[안과적응급수술]">
+            {% elif result.oper == 21 %}
+            <input type=hidden id="oper" value="[응급투석] HD">
+            {% elif result.oper == 22 %}
+            <input type=hidden id="oper" value="[응급투석] CRRT">
+            {% elif result.oper == 23 %}
+            <input type=hidden id="oper" value="[영상의학혈관중재] 성인">
+            {% elif result.oper == 24 %}
+            <input type=hidden id="oper" value="[영상의학혈관중재] 영유아">
+            {% elif result.oper == 25 %}
+            <input type=hidden id="oper" value="[정신과적 응급] 폐쇄병동입원">
+            {% elif result.oper == 26 %}
+            <input type=hidden id="oper" value="[중증화상]">
+            {% elif result.oper == 27 %}
+            <input type=hidden id="oper" value="[저출생체중아]">
+            {% endif %}
+    
+            {% if result.poss == 0 %}
+            <input type="hidden" id="show" value=0>
+            {% elif result.poss == 1 %}
+            <input type="hidden" id="show" value=1>
+            {% endif %}
+    
+            {% if result.hos == "0" %}
+            <input type=hidden id="ETE" value={{result.ETE_S}}>
+            {% elif result.hos == "1" %}
+            <input type=hidden id="ETE" value={{result.ETE_U}}>
+            {% elif result.hos == "2" %}
+            <input type=hidden id="ETE" value={{result.ETE_B}}>
+            {% elif result.hos == "3" %}
+            <input type=hidden id="ETE" value={{result.ETE_C}}>
+            {% endif %}
 
-        {% if result.emer == 3 %}
-        <input type=hidden id="emer" value="긴급">
-        {% elif result.emer == 2 %}
-        <input type=hidden id="emer" value="응급">
-        {% elif result.emer == 1 %}
-        <input type=hidden id="emer" value="비응급">
-        {% endif %}
+            {% if result.hos == "0" %}
+            <input type=hidden id="ETA" value={{result.ETA_S}}>
+            {% elif result.hos == "1" %}
+            <input type=hidden id="ETA" value={{result.ETA_U}}>
+            {% elif result.hos == "2" %}
+            <input type=hidden id="ETA" value={{result.ETA_B}}>
+            {% elif result.hos == "3" %}
+            <input type=hidden id="ETA" value={{result.ETA_C}}>
+            {% endif %}
 
-        {% if result.oper == 0 %}
-        <input type=hidden id="oper" value="수술 안함">
-        {% elif result.oper == 1 %}
-        <input type=hidden id="oper" value="[재관류중재술] 심근경색">
-        {% elif result.oper == 2 %}
-        <input type=hidden id="oper" value="[재관류중재술] 뇌경색">
-        {% elif result.oper == 3 %}
-        <input type=hidden id="oper" value="[뇌출혈수술] 거미막하출혈">
-        {% elif result.oper == 4 %}
-        <input type=hidden id="oper" value="[뇌출혈수술] 거미막하출혈외">
-        {% elif result.oper == 5 %}
-        <input type=hidden id="oper" value="[대동맥응급] 흉부">
-        {% elif result.oper == 6 %}
-        <input type=hidden id="oper" value="[대동맥응급] 복부">
-        {% elif result.oper == 7 %}
-        <input type=hidden id="oper" value="[담낭담관질환] 담낭질환">
-        {% elif result.oper == 8 %}
-        <input type=hidden id="oper" value="[담낭담관질환] 담도포함질환">
-        {% elif result.oper == 9 %}
-        <input type=hidden id="oper" value="[복부응급수술] 비외상">
-        {% elif result.oper == 10 %}
-        <input type=hidden id="oper" value="[장중첩/폐색] 영유아">
-        {% elif result.oper == 11 %}
-        <input type=hidden id="oper" value="[사지접합의수술] 수족지접합">
-        {% elif result.oper == 12 %}
-        <input type=hidden id="oper" value="[사지접합의수술] 수족지접합외">
-        {% elif result.oper == 13 %}
-        <input type=hidden id="oper" value="[위장관응급내시경] 성인">
-        {% elif result.oper == 14 %}
-        <input type=hidden id="oper" value="[위장관응급내시경] 영유아">
-        {% elif result.oper == 15 %}
-        <input type=hidden id="oper" value="[기관지응급내시경] 성인">
-        {% elif result.oper == 16 %}
-        <input type=hidden id="oper" value="[기관지응급내시경] 영유아">
-        {% elif result.oper == 17 %}
-        <input type=hidden id="oper" value="[산부인과응급] 분만">
-        {% elif result.oper == 18 %}
-        <input type=hidden id="oper" value="[산부인과응급] 산과수술">
-        {% elif result.oper == 19 %}
-        <input type=hidden id="oper" value="[산부인과응급] 부인과수술">
-        {% elif result.oper == 20 %}
-        <input type=hidden id="oper" value="[안과적응급수술]">
-        {% elif result.oper == 21 %}
-        <input type=hidden id="oper" value="[응급투석] HD">
-        {% elif result.oper == 22 %}
-        <input type=hidden id="oper" value="[응급투석] CRRT">
-        {% elif result.oper == 23 %}
-        <input type=hidden id="oper" value="[영상의학혈관중재] 성인">
-        {% elif result.oper == 24 %}
-        <input type=hidden id="oper" value="[영상의학혈관중재] 영유아">
-        {% elif result.oper == 25 %}
-        <input type=hidden id="oper" value="[정신과적 응급] 폐쇄병동입원">
-        {% elif result.oper == 26 %}
-        <input type=hidden id="oper" value="[중증화상]">
-        {% elif result.oper == 27 %}
-        <input type=hidden id="oper" value="[저출생체중아]">
-        {% endif %}
+            <input type=hidden id="start" value={{result.start}}>
+            <input type=hidden id="end" value={{result.end}}>
+            <input type=hidden id="time" value={{result.time}}>
 
-        {% if result.poss == 0 %}
-        <input type="hidden" id="show" value=0>
-        {% elif result.poss == 1 %}
-        <input type="hidden" id="show" value=1>
-        {% endif %}
-
-        {% if result.hos == "0" %}
-        <input type=hidden id="ETE" value={{result.ETE_S}}>
-        {% elif result.hos == "1" %}
-        <input type=hidden id="ETE" value={{result.ETE_U}}>
-        {% elif result.hos == "2" %}
-        <input type=hidden id="ETE" value={{result.ETE_B}}>
-        {% elif result.hos == "3" %}
-        <input type=hidden id="ETE" value={{result.ETE_C}}>
-        {% endif %}
+       </span>
 
 
         <header>
@@ -708,7 +761,6 @@
                 <div id="result_oper">
                     중증응급질환정보
                 </div>
-                <div id="clock"></div>
             </h2>
         </header>
 
@@ -728,14 +780,15 @@
             </div>
             <div class="timebar_area">
                 <div id="timebar1">
-                    이동소요시간
+                    도착시간 <span id="ETAout"></span>
                 </div>
                 <div id="timebar2">
-                    의료서비스남은시간
+                    처치가능시간<span id="STARTout"></span>
                 </div>
             </div>
             <div class="detail_area">
-                도착 후 예상대기시간
+                <div id="clock">현재시간</div>
+                <div id="result_wait">도착 후 치료까지 <span id='wait'>--</span></div>
             </div>
         </aside>
 
