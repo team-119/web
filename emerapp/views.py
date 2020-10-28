@@ -651,40 +651,27 @@ def user_output(request, patient_id):
                             i[1] = tplus(i[1][0],i[1][1],gaptime[0],gaptime[1])
                             i[2] = tplus(i[2][0],i[2][1],gaptime[0],gaptime[1])
      
-                result = [] #출력할 결과물
+                result = {} #출력할 결과물
                 #출력 / 필드명 : emer, oper, hos, by, time(현재시간), ETE_S, ETE_U, ETE_B, ETE_C, ETA_S, ETA_U, ETA_B, ETA_C, start, end 를 딕셔너리로
-                result.append(emer)
-                result.append(sur)
-                result.append("str(tfinal[0][2])")
-                result.append(Patient.objects.filter(id = patient_id).values('time')[0]['time'])
-                result.append(int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S']))
-                result.append(int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U']))
-                result.append(int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B']))
-                result.append(int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C']))
-                result.append(t0[0])
-                result.append(t0[1])
-                result.append(t0[2])
-                result.append(t0[3])
-                
-                hos = str(tfinal[0][2])
-                time = Patient.objects.filter(id = patient_id).values('time')[0]['time']
-                ETE_S = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
-                ETE_U = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
-                ETE_B = int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B'])
-                ETE_C = int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C'])
-                ETA_S = t0[0]
-                ETA_U = t0[1]
-                ETA_B = t0[2]
-                ETA_C = t0[3]
-                start = timeon(tfinal[0][0],tfinal[0][1])
-                end = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1])
-                poss = 0
-                
+                result['emer'] = emer
+                result['oper'] = sur
+                result['hos'] = str(tfinal[0][2])
+                result['time'] = Patient.objects.filter(id = patient_id).values('time')[0]['time']
+                result['ETE_S'] = int(Patient.objects.filter(id = patient_id).values('ETE_S')[0]['ETE_S'])
+                result['ETE_U'] = int(Patient.objects.filter(id = patient_id).values('ETE_U')[0]['ETE_U'])
+                result['ETE_B'] = int(Patient.objects.filter(id = patient_id).values('ETE_B')[0]['ETE_B'])
+                result['ETE_C'] = int(Patient.objects.filter(id = patient_id).values('ETE_C')[0]['ETE_C'])
+                result['ETA_S'] = t[0]
+                result['ETA_U'] = t[1]
+                result['ETA_B'] = t[2]
+                result['ETA_C'] = t[3]
+                result['start'] = timeon(tfinal[0][0],tfinal[0][1])
+                result['end'] = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1])
+                result['poss'] = 0
+
                 #db 업데이트 코드
                 #선정병원, 예상시작시간, 예상종료시간
                 Patient.objects.filter(id = patient_id).update(hos = str(tfinal[0][2]), start = timeon(tfinal[0][0],tfinal[0][1]), end = timeon(tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1]))
                 
-                #print(result)
-                print(emer, sur, hos, time, ETE_S, ETE_U, ETE_B, ETE_C, ETA_S, ETA_U, ETA_B, ETA_C, start, end, poss)
-
-    return render(request, 'emerapp/user_output.html', {'emer':emer, 'oper':sur, 'hos':hos, 'time':time, 'ETE_S':ETE_S, 'ETE_U':ETE_U, 'ETE_B':ETE_B, 'ETE_C':ETE_C, 'ETA_S':ETA_S, 'ETA_U':ETA_U, 'ETA_B':ETA_B, 'ETA_C':ETA_C, 'start':start, 'end':end, 'poss':poss})
+                print(result)
+    return render(request, 'emerapp/user_output.html', {'result': result})
