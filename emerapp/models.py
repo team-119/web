@@ -1,7 +1,7 @@
 from django.db import models
 
 class Patient(models.Model):
-    emer = models.IntegerField(default=1) #1:비응, 3:응
+    emer = models.IntegerField(default=1) #1:비응, 3:긴급 
     oper = models.IntegerField(default=0) #0이면 수술 노필요
     hos = models.CharField(default="-", max_length=1) #0:성모, 1:의료원, 2:백, 3:추
     by = models.IntegerField(default=0) #0:user_input, 1:hos_input
