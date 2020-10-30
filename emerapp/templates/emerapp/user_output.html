@@ -96,7 +96,7 @@
                 margin: 0;
                 position: absolute;
                 top: 270px;
-                left: 4%;
+                left: 0%;
             }
             
 
@@ -114,7 +114,7 @@
                 padding: 1rem;
                 margin-left: 33%;
                 border-radius:3px 3px 3px 3px;
-                font-size: 2rem;
+                font-size: 1.5rem;
                 position: relative;
                 float: left;
             }
@@ -124,7 +124,7 @@
                 padding: 1rem;
                 margin-right: 33%;
                 border-radius:3px 3px 3px 3px;
-                font-size: 2rem;
+                font-size: 1.5rem;
                 position: relative;
                 float: right;
             }
@@ -132,7 +132,7 @@
                 margin-top: 5%;
                 margin-left: 5%;
                 color: white;
-                font-size: 2.5rem;
+                font-size: 2.3rem;
                 width: 47%;
                 height: 40%;
                 position: relative;
@@ -167,7 +167,7 @@
                 padding: 1.5%;
                 margin-top: 3%;
                 margin-bottom: 1%;
-                width: 70%;
+                width: 60%;
                 top: 380px;
                 position: absolute;
             }
@@ -205,7 +205,7 @@
          var resultdrawArr = [];
             var resultMarkerArr = [];
 
-            var my = {lat: 37.9504963, lon: 127.02928809999999, ETE: 0, ETH: 0, wait: 0}; //내좌표
+            var my = {lat: 37.9504963, lon: 127.02928809999999}; //내좌표
             var s = {name: "[권역][외상]<br/>가톨릭대학교<br/>의정부성모병원", lat: 37.758568, lon: 127.077705};
             var u = {name: "[기관]<br/>경기도의료원<br/>의정부병원", lat: 37.741181, lon: 127.042525};
             var b = {name: "[기관]<br/>의료법인영동의료재단<br/>의정부백병원", lat: 37.745791, lon: 127.061916};
@@ -595,7 +595,7 @@
 
             function Main()
             {
-                //selectHospital = $("#selectHospital").val();
+                selectHospital = $("#selectHospital").val();
                 document.getElementById("result_hos").innerHTML
                     = hospital[selectHospital].name;
 
@@ -608,9 +608,27 @@
                 document.getElementById("result_ETE").innerHTML
                 = $("#ETE").val() + "분"
 
-                my.ETE = $("#ETE").val();
-                my.ETH = 0; //@ 병원서비스까지 남은시간 / 시작시간-현재시간
-                my.wait = 0; //@ 병원도착후 대기시간 ETH-ETE > 0 ? ETH-ETE : 0
+                var ETE = $("#ETE").val();
+                var ETA = $("#ETE").val();
+                var time = $("#time").val();
+                var start = $("#start").val();
+                var end = $("#end").val();
+
+                var wait = [0,0];
+                var aid = 0;
+
+                if( (ETA[0]*60+ETA[1]) < (start[0]*60+start[1]) ){
+                    var a;
+                    wait[1] = start[1]>ETA[1] ? start[1]-ETA[1] : 60+start[1]-ETA[1]; // 내림없으면 그냥뺌
+                    wait[0] = start[1]>ETA[1] ? start[0]-ETA[0] : start[0]-ETA[0]-1; // 내림있으면 1더빼줌
+                    
+                    document.getElementById("wait").innerHTML
+                    = wait[0] +"시간 "+wait[1]+"분 대기"
+                }
+                else{
+                    document.getElementById("wait").innerHTML
+                    = "대기 없음"
+                }
 
 
                 printTime();
@@ -630,7 +648,7 @@
     <body onload="Main()">
 
        <span>
-          {% if result.hos == "0" %}
+            {% if result.hos == "0" %}
           <input type=hidden id="selectHospital" value=0>
           {% elif result.hos == "1" %}
           <input type=hidden id="selectHospital" value=1>
@@ -722,6 +740,20 @@
             <input type=hidden id="ETE" value={{result.ETE_C}}>
             {% endif %}
 
+            {% if result.hos == "0" %}
+            <input type=hidden id="ETA" value={{result.ETA_S}}>
+            {% elif result.hos == "1" %}
+            <input type=hidden id="ETA" value={{result.ETA_U}}>
+            {% elif result.hos == "2" %}
+            <input type=hidden id="ETA" value={{result.ETA_B}}>
+            {% elif result.hos == "3" %}
+            <input type=hidden id="ETA" value={{result.ETA_C}}>
+            {% endif %}
+
+            <input type=hidden id="start" value={{result.start}}>
+            <input type=hidden id="end" value={{result.end}}>
+            <input type=hidden id="time" value={{result.time}}>
+
        </span>
 
 
@@ -761,7 +793,7 @@
             </div>
             <div class="detail_area">
                 <div id="clock">현재시간</div>
-                <div id="result_wait">도착 후 치료까지 --분 대기</div>
+                <div id="result_wait">도착 후 치료까지 <span id='wait'>--</span></div>
             </div>
         </aside>
 
