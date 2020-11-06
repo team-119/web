@@ -325,8 +325,8 @@ def user_output(request, patient_id):
             else:
                 return 0
             
-        def tmin(a,b,c,d): #시간 뺄셈 알고리즘()
-            if tplus(a,b,c,d) == 2:
+        def tmin(a,b,c,d): #시간 뺄셈 알고리즘
+            if tcom(a,b,c,d) == 0:
                 return "false"
             else: #앞 시간이 클때 
                 if b >= d: # 무조건 a >= c
@@ -411,7 +411,7 @@ def user_output(request, patient_id):
         t[1] = Patient.objects.filter(id = patient_id).values('ETA_U')[0]['ETA_U']
         t[2] = Patient.objects.filter(id = patient_id).values('ETA_B')[0]['ETA_B']
         t[3] = Patient.objects.filter(id = patient_id).values('ETA_C')[0]['ETA_C']
-     
+    
         n = 0
         for i in t:
             t0[n][0] = int(i.split(':')[0])
@@ -543,6 +543,9 @@ def user_output(request, patient_id):
     
         else: #(poss_hos에 병원 2개) (성모,추)
             n = 0
+            print("sungmo_sur : ",sungmo_sur)
+            print("sur : ", sur)
+            
             if sungmo_sur[sur] == 1:
                 poss_hos[0] = 3 #성모 가능
             

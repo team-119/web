@@ -87,12 +87,12 @@
 
         .tablebox { margin: auto; width: 95%; }
 
-        .checked { background-color: #1f273a; color: white}
+        .checked { background-color: #6e7583; color: white}
 
         .button{
             margin-left: 3%;
             margin-top: 2%;
-            margin-bottom: 5%;
+            margin-bottom: 2%;
             padding: 10px 50px 8px 50px;
             color: white;
             font-family: arial;
@@ -152,8 +152,10 @@
         function printTime() {
                 
             var clock = document.getElementById("clock");   // 출력할 장소 선택
-            var currentDate = new Date();   // 현재시간
-            var calendar = currentDate.getFullYear() + "-" + (currentDate.getMonth()+1) + "-" + currentDate.getDate() // 현재 날짜
+            var currentDate = new Date();   // Date 생성
+            var calendar = addZeros(currentDate.getFullYear(),2) + "-"
+                         + addZeros((currentDate.getMonth()+1),2) + "-" 
+                         + addZeros(currentDate.getDate(),2); // 현재 날짜
 
             var currentHours = addZeros(currentDate.getHours(),2); 
             var currentMinute = addZeros(currentDate.getMinutes() ,2);
