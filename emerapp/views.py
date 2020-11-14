@@ -3,6 +3,7 @@ from emerapp.forms import PatientForm
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
+import json
 import requests
 import re
 from bs4 import BeautifulSoup as bs
@@ -534,8 +535,8 @@ def user_output(request, patient_id):
             result['ETA_U'] = t0[1]
             result['ETA_B'] = t0[2]
             result['ETA_C'] = t0[3]
-            result['start'] = [tfinal[0][0],tfinal[0][1]]
-            result['end'] = [tfinal[0][0],tfinal[0][1]]
+            result['start'] = json.dumps([tfinal[0][0],tfinal[0][1]])
+            result['end'] = json.dumps([tfinal[0][0],tfinal[0][1]])
             result['poss'] = 0
 
 
@@ -673,8 +674,8 @@ def user_output(request, patient_id):
                 result['ETA_U'] = t0[1]
                 result['ETA_B'] = t0[2]
                 result['ETA_C'] = t0[3]
-                result['start'] = [tfinal[0][0],tfinal[0][1]]
-                result['end'] = [tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1]]
+                result['start'] = json.dumps([tfinal[0][0],tfinal[0][1]])
+                result['end'] = json.dumps([tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[0],tplus(tfinal[0][0],tfinal[0][1],stay[sur][0],stay[sur][1])[1]])
                 result['poss'] = 0
 
                 #db 업데이트 코드
