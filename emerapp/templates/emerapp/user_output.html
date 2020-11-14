@@ -624,13 +624,14 @@
 
                 selectHospital = $("#selectHospital").val();
                 var ETE = $("#ETE").val();
-                if(selectHospital == 0){ var ETA = result.ETA_S; }
-                else if(selectHospital == 1){ var ETA = result.ETA_U; }
-                else if(selectHospital == 2){ var ETA = result.ETA_B; }
-                else if(selectHospital == 3){ var ETA = result.ETA_C; }
+                if(selectHospital == 0){ var ETA = {{result.ETA_S}}; }
+                else if(selectHospital == 1){ var ETA = {{result.ETA_U}}; }
+                else if(selectHospital == 2){ var ETA = {{result.ETA_B}}; }
+                else if(selectHospital == 3){ var ETA = {{result.ETA_C}}; }
 
-                var start = result.start
-                var end = result.end
+                var start = {{result.start|safe}};
+                var end = {{result.end|safe}};
+                
                 console.log(start[0], start[1]);
 
                 var aid = 0; // 수술까지 남은시간 (분)
